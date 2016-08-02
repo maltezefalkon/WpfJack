@@ -65,15 +65,29 @@ namespace WpfApplication1
                 int y = padding;
                 foreach (Card card in stack)
                 {
-                    UICard uiCard = new UICard(card, mgr);
-                    CastleStackCanvas.Children.Add(uiCard);
-                    Canvas.SetLeft(uiCard, x);
-                    Canvas.SetTop(uiCard, y);
+                    DrawCard(card, mgr, x, y, CastleStackCanvas);
                     y += (int)(mgr.CardHeight / 4);
-                    UICards[card] = uiCard;
                 }
                 x += (int)mgr.CardWidth + padding;
             }
+            foreach (CardStack<BeanstalkCard> stack in game.BeanstalkStacks)
+            {
+                int y = padding;
+                foreach (Card card in stack)
+                {
+                    DrawCard(card, mgr, x, y, BeanstalkStackCanvas);
+                    y += (int)(mgr.CardHeight / 4);
+                }
+            }
+        }
+
+        private void DrawCard(Card card, UIParameterManager mgr, int x, int y, Canvas castleStackCanvas)
+        {
+            UICard uiCard = new UICard(card, mgr);
+            CastleStackCanvas.Children.Add(uiCard);
+            Canvas.SetLeft(uiCard, x);
+            Canvas.SetTop(uiCard, y);
+            UICards[card] = uiCard;
         }
 
         private void ClearCastleStacks()

@@ -34,9 +34,9 @@ namespace Jack
             BeanstalkCard toDiscard = highestValues.First();
             int castleStackIndex = game.FindCastleStackIndexForCard(toDiscard);
             CastleStackDescriptor stack = new CastleStackDescriptor(castleStackIndex);
-            return new RandomCardPositionDescriptor<BeanstalkCard>()
+            return new RandomCardPositionDescriptor<Card>()
             {
-                Stack = new BeanstalkStackDescriptor(),
+                Stack = stack,
                 Index = stack.GetStack(game).IndexOf(toDiscard)
             };
         }

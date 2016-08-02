@@ -22,7 +22,8 @@ namespace Jack
 
         public T PeekCard(Game game)
         {
-            return Stack.GetStack(game)[Index];
+            ICardStack<T> s = Stack.GetStack(game);
+            return s[Index];
         }
 
         public T PluckCard(Game game)
@@ -44,7 +45,7 @@ namespace Jack
 
         public void PutCard(Game game, Card card)
         {
-            Stack.GetStack(game).Insert(Index, card);
+            Stack.GetStack(game).Insert(Index, (T)card); //HACK
         }
     }
 }

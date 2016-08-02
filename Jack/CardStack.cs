@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Jack
 {
-    public class CardStack : CardStack<Card>
+    public class CardStack : CardStack<Card>, ICardStack<Card>
     {
         public CardStack()
             : this(Guid.NewGuid().ToString())
@@ -20,7 +20,7 @@ namespace Jack
 
     }
 
-    public class CardStack<T>: List<T> where T : Card
+    public class CardStack<T> : List<T>, ICardStack<T> where T : Card
     {
         public CardStack()
             : this(Guid.NewGuid().ToString())
@@ -52,11 +52,11 @@ namespace Jack
 
         public T BackCard => BackIndex == -1 ? null : this[BackIndex];
 
-        public void Push(StackEnd end, T card)
+        public void Push(StackEnd end, Card card)
         {
             if (end == StackEnd.Front)
             {
-                Add(card);
+                Add((T)card);
             }
             else
             {
@@ -114,5 +114,19 @@ namespace Jack
             yield return BackCard;
         }
 
+        public void Insert(int index, Card card)
+        {
+            base.Insert(index, (T)card);
+        }
+
+        public int IndexOf(Card card)
+        {
+            return base.IndexOf((T)card);
+        }
+
+        public void Remove(Card card)
+        {
+            base.Remove((T)card);
+        }
     }
 }

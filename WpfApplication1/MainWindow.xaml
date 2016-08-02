@@ -14,5 +14,7 @@
         </ToolBarTray>
         <Canvas x:Name="CastleStackCanvas">
         </Canvas>
+        <Canvas x:Name="BeanstalkStackCanvas" Background="Gray">
+        </Canvas>
     </Canvas>
 </Window>

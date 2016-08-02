@@ -10,15 +10,14 @@ namespace Jack
     {
         public override PlayerTurn GetNextTurn(Game game)
         {
-            CardType want = GetCardTypeWanted(game);
-            IAction action = GetWantedCard(game, want);
-            return new PlayerTurn(this)
+            PlayerTurn ret = new PlayerTurn(this);
+            for (int i = 0; i < 3; i++)
             {
-                Actions =
-                {
-                    action
-                }
-            };
+                CardType want = GetCardTypeWanted(game);
+                IAction action = GetWantedCard(game, want);
+                ret.Actions.Add(action);
+            }
+            return ret;
         }
 
         private IAction GetWantedCard(Game game, CardType type)
@@ -41,7 +40,7 @@ namespace Jack
 
         private Card Get(Game game)
         {
-            int minimumValue = game.ActiveBeanstalkStack.LastOrDefault()?.Value ?? 1;
+            int minimumValue = (game.ActiveBeanstalkStack.LastOrDefault()?.Value ?? 0) + 1;
             for (int i = minimumValue; i <= BeanstalkCard.MaximumValue; i++)
             {
                 foreach (CardStack stack in game.CastleStacks)

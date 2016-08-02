@@ -109,11 +109,31 @@ namespace Jack
         public ICardPositionDescriptor<Card> GetPositionDescriptorForCard(Card card)
         {
             int stackIndex = FindCastleStackIndexForCard(card);
-            return new RandomCardPositionDescriptor<Card>()
+            int cardIndex = CastleStacks[stackIndex].IndexOf(card);
+            if (cardIndex == CastleStacks[stackIndex].FrontIndex)
             {
-                Stack = new CastleStackDescriptor(stackIndex),
-                Index = CastleStacks[stackIndex].IndexOf(card)
-            };
+                return new StackEndCardPositionDescriptor()
+                {
+                    End = StackEnd.Front,
+                    Stack = new CastleStackDescriptor(stackIndex)
+                };
+            }
+            else if (cardIndex == CastleStacks[stackIndex].BackIndex)
+            {
+                return new StackEndCardPositionDescriptor()
+                {
+                    End = StackEnd.Back,
+                    Stack = new CastleStackDescriptor(stackIndex)
+                };
+            }
+            else
+            {
+                return new RandomCardPositionDescriptor<Card>()
+                {
+                    Stack = new CastleStackDescriptor(stackIndex),
+                    Index = cardIndex
+                };
+            }
         }
     }
 }

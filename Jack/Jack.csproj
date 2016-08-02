@@ -55,6 +55,7 @@
     <Compile Include="IAction.cs" />
     <Compile Include="ICardPositionDescriptor.cs" />
     <Compile Include="ICardSetDescriptor.cs" />
+    <Compile Include="ICardStack.cs" />
     <Compile Include="JackPlayer.cs" />
     <Compile Include="JackSneakAction.cs" />
     <Compile Include="Player.cs" />

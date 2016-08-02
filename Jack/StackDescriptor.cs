@@ -8,7 +8,7 @@ namespace Jack
 {
     public interface IStackDescriptor<out T> where T : Card
     {
-        CardStack<T> GetStack(Game game);
+        ICardStack<T> GetStack(Game game);
         bool IsValid(Game game);
     }
 
@@ -25,7 +25,7 @@ namespace Jack
             private set;
         }
 
-        public CardStack<Card> GetStack(Game game)
+        public ICardStack<Card> GetStack(Game game)
         {
             return game.CastleStacks[CastleStackIndex];
         }
@@ -38,7 +38,7 @@ namespace Jack
 
     public class DiscardPileStackDescriptor : IStackDescriptor<Card>
     {
-        public CardStack<Card> GetStack(Game game)
+        public ICardStack<Card> GetStack(Game game)
         {
             return game.DiscardPile;
         }
@@ -51,7 +51,7 @@ namespace Jack
 
     public class BeanstalkStackDescriptor : IStackDescriptor<BeanstalkCard>
     {
-        public CardStack<BeanstalkCard> GetStack(Game game)
+        public ICardStack<BeanstalkCard> GetStack(Game game)
         {
             return game.ActiveBeanstalkStack;
         }
