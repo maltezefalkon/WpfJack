@@ -77,9 +77,10 @@ namespace Jack
         }
     }
 
-    public class TreasureCard : Card
+    public class TreasureCard : BeanstalkCard
     {
         public TreasureCard(TreasureCardType type)
+            : base(BeanstalkCard.MaximumValue + 1)
         {
             TreasureCardType = type;
         }

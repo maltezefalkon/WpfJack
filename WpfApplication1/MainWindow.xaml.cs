@@ -75,15 +75,15 @@ namespace WpfApplication1
                 int y = padding;
                 foreach (Card card in stack)
                 {
-                    DrawCard(card, mgr, x, y, BeanstalkStackCanvas);
+                    DrawCard(card, mgr, x, y, BeanstalkStackCanvas, true);
                     y += (int)(mgr.CardHeight / 4);
                 }
             }
         }
 
-        private void DrawCard(Card card, UIParameterManager mgr, int x, int y, Canvas castleStackCanvas)
+        private void DrawCard(Card card, UIParameterManager mgr, int x, int y, Canvas castleStackCanvas, bool darkColor = false)
         {
-            UICard uiCard = new UICard(card, mgr);
+            UICard uiCard = new UICard(card, mgr, darkColor);
             CastleStackCanvas.Children.Add(uiCard);
             Canvas.SetLeft(uiCard, x);
             Canvas.SetTop(uiCard, y);

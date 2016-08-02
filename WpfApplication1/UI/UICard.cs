@@ -14,7 +14,7 @@ namespace WpfApplication1.UI
     public class UICard : System.Windows.Controls.Grid
     {
 
-        public UICard(Card card, UIParameterManager parameterManager)
+        public UICard(Card card, UIParameterManager parameterManager, bool darkColor = false)
         {
             Width = parameterManager.CardWidth;
             Height = parameterManager.CardHeight;
@@ -23,7 +23,7 @@ namespace WpfApplication1.UI
             {
                 Stroke = new SolidColorBrush(Colors.Black),
                 StrokeThickness = 2d,
-                Fill = new SolidColorBrush(parameterManager.GetColor(card.CardType))
+                Fill = new SolidColorBrush(darkColor ? parameterManager.GetDarkColor(card.CardType) : parameterManager.GetColor(card.CardType))
             });
             Children.Add(new TextBlock()
             {

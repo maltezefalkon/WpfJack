@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WpfApplication1"
         mc:Ignorable="d"
         Title="MainWindow" Height="649.635" Width="731.775">
-    <Canvas>
+    <StackPanel>
         <ToolBarTray>
             <ToolBar>
                 <Button x:Name="NextButton" Click="NextButton_Click">Next &gt;</Button>
@@ -14,7 +14,9 @@
         </ToolBarTray>
         <Canvas x:Name="CastleStackCanvas">
         </Canvas>
-        <Canvas x:Name="BeanstalkStackCanvas" Background="Gray">
-        </Canvas>
-    </Canvas>
+        <Border BorderBrush="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}">
+            <Canvas x:Name="BeanstalkStackCanvas" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionColor}}">
+            </Canvas>
+        </Border>
+    </StackPanel>
 </Window>
