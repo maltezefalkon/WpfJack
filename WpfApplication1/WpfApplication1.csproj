@@ -57,6 +57,7 @@
     </ApplicationDefinition>
     <Compile Include="UI\UICard.cs" />
     <Compile Include="UI\UIParameterManager.cs" />
+    <Compile Include="ViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

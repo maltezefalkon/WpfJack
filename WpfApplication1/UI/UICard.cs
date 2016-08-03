@@ -14,22 +14,27 @@ namespace WpfApplication1.UI
     public class UICard : System.Windows.Controls.Grid
     {
 
-        public UICard(Card card, UIParameterManager parameterManager, bool darkColor = false)
+        public UICard(Card card, UIParameterManager parameterManager, int darkLevels = 0)
         {
             Width = parameterManager.CardWidth;
             Height = parameterManager.CardHeight;
             Card = card;
+            Color c = parameterManager.GetColor(card.CardType);
+            for (int i = 0; i < darkLevels; i++)
+            {
+                c = parameterManager.Darken(c, 0.4);
+            }
             Children.Add(new Rectangle()
             {
                 Stroke = new SolidColorBrush(Colors.Black),
                 StrokeThickness = 2d,
-                Fill = new SolidColorBrush(darkColor ? parameterManager.GetDarkColor(card.CardType) : parameterManager.GetColor(card.CardType))
+                Fill = new SolidColorBrush(c)
             });
             Children.Add(new TextBlock()
             {
                 Text = card.Abbreviation,
                 Foreground = new SolidColorBrush(parameterManager.GetTextColor(card)),
-                Padding = new System.Windows.Thickness(UIParameterManager.Scale / 5),
+                Padding = new Thickness(parameterManager.CardWidth / 100d),
                 FontWeight = FontWeights.Bold
             });
         }

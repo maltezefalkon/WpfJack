@@ -10,9 +10,8 @@ namespace WpfApplication1.UI
 {
     public class UIParameterManager
     {
-        public const double Scale = 30;
-        public double CardWidth = 2.5d * Scale;
-        public double CardHeight = 3.5d * Scale;
+        public double CardWidth = 80;
+        public double CardHeight = 112;
 
         public Color GetTextColor(Card c)
         {
@@ -44,34 +43,10 @@ namespace WpfApplication1.UI
             }
         }
 
-        public Color GetDarkColor(CardType c)
+        public Color Darken(Color original, double amount)
         {
-            switch (c)
-            {
-                case CardType.Beanstalk:
-                    return Color.FromRgb(0, 64, 0);
-                case CardType.Giant:
-                    return Colors.DarkRed;
-                case CardType.Treasure:
-                    return Colors.DarkBlue;
-                default:
-                    return Colors.Gray;
-            }
-        }
-
-        public Color GetDarkerColor(CardType c)
-        {
-            switch (c)
-            {
-                case CardType.Beanstalk:
-                    return Color.FromRgb(0, 16, 0);
-                case CardType.Giant:
-                    return Colors.DarkRed;
-                case CardType.Treasure:
-                    return Colors.DarkBlue;
-                default:
-                    return Colors.Gray;
-            }
+            double amt = 1 - amount;
+            return Color.FromRgb((byte)(original.R * amt), (byte)(original.G * amt), (byte)(original.B * amt));
         }
     }
 }

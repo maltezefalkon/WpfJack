@@ -47,6 +47,7 @@ namespace WpfApplication1
             base.OnInitialized(e);
             Game.Init();
             UIParameterManager = new UIParameterManager();
+            DataContext = new ViewModel(UIParameterManager, Game);
             DrawCastleStacks();
         }
 
@@ -65,7 +66,7 @@ namespace WpfApplication1
                 int y = padding;
                 foreach (Card card in stack)
                 {
-                    DrawCard(card, mgr, x, y, CastleStackCanvas);
+                    DrawCard(card, mgr, x, y, CastleStackCanvas, 1);
                     y += (int)(mgr.CardHeight / 4);
                 }
                 x += (int)mgr.CardWidth + padding;
@@ -76,26 +77,26 @@ namespace WpfApplication1
                 int y = padding;
                 foreach (Card card in stack)
                 {
-                    DrawCard(card, mgr, x, y, BeanstalkStackCanvas, true);
+                    DrawCard(card, mgr, x, y, BeanstalkStackCanvas, 0);
                     y += (int)(mgr.CardHeight / 4);
                 }
                 x += (int)mgr.CardWidth + padding;
             }
             x = padding;
+            int yy = padding;
             foreach (Card card in game.DiscardPile)
             {
-                int y = padding;
-                DrawCard(card, mgr, x, y, DiscardPileCanvas, true);
-                y += (int)(mgr.CardHeight / 4);
+                DrawCard(card, mgr, x, yy, DiscardPileCanvas, 2);
+                yy += (int)(mgr.CardHeight / 4);
             }
         }
 
-        private void DrawCard(Card card, UIParameterManager mgr, int x, int y, Canvas canvas, bool darkColor = false)
+        private void DrawCard(Card card, UIParameterManager mgr, int x, int y, Canvas canvas, int darkness)
         {
             UICard uiCard = UICards.ContainsKey(card) ? UICards[card] : null;
             if (null == uiCard)
             {
-                uiCard = new UICard(card, mgr, darkColor);
+                uiCard = new UICard(card, mgr, darkness);
                 canvas.Children.Add(uiCard);
                 UICards[card] = uiCard;
             }

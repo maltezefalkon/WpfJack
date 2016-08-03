@@ -7,15 +7,20 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="675.119" Width="731.775">
     <Grid>
-        <ToolBarTray>
-            <ToolBar>
-                <Button x:Name="NextButton" Click="NextButton_Click">Next &gt;</Button>
-            </ToolBar>
-        </ToolBarTray>
-        <DockPanel LastChildFill="True">
-            <Canvas x:Name="DiscardPileCanvas" Height="250" DockPanel.Dock="Top"/>
-            <Canvas x:Name="BeanstalkStackCanvas" Height="250" DockPanel.Dock="Top"/>
-            <Canvas x:Name="CastleStackCanvas" DockPanel.Dock="Top"/>
-        </DockPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <ToolBar Grid.Row="0" Grid.Column="0">
+            <Button x:Name="NextButton" Click="NextButton_Click">Next &gt;</Button>
+        </ToolBar>
+        <Canvas x:Name="DiscardPileCanvas" Grid.Column="0" Grid.Row="1" Height="{Binding Path=UIParameterManager.CardHeight}" />
+        <Canvas x:Name="BeanstalkStackCanvas" Grid.Column="1" Grid.Row="1" Height="{Binding Path=UIParameterManager.CardHeight}"/>
+        <Canvas x:Name="CastleStackCanvas" Grid.ColumnSpan="2" Grid.Row="2"/>
     </Grid>
 </Window>
