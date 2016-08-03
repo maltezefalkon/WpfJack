@@ -18,6 +18,7 @@ namespace Jack
     {
         public static int MinimumValue = 1;
         public static int MaximumValue = 9;
+        public static int TreasureValue = MaximumValue + 1;
 
         public BeanstalkCard(int value)
         {

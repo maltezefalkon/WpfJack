@@ -34,6 +34,11 @@ namespace Jack
         {
             return game.CastleStacks.Length > CastleStackIndex;
         }
+
+        public override string ToString()
+        {
+            return $"Castle Stack {CastleStackIndex}";
+        }
     }
 
     public class DiscardPileStackDescriptor : IStackDescriptor<Card>
@@ -47,6 +52,11 @@ namespace Jack
         {
             return game.DiscardPile != null;
         }
+
+        public override string ToString()
+        {
+            return $"Discard Pile";
+        }
     }
 
     public class BeanstalkStackDescriptor : IStackDescriptor<BeanstalkCard>
@@ -59,6 +69,10 @@ namespace Jack
         public bool IsValid(Game game)
         {
             throw new NotImplementedException();
+        }
+        public override string ToString()
+        {
+            return $"Active Beanstalk Stack";
         }
     }
 

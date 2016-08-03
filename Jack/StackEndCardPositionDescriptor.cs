@@ -44,5 +44,10 @@ namespace Jack
         {
             return Stack.GetStack(game).GetIndexForStackEnd(End);
         }
+
+        public override string ToString()
+        {
+            return $"{End} of {Stack}";
+        }
     }
 }

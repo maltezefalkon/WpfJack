@@ -70,6 +70,7 @@ namespace WpfApplication1
                 }
                 x += (int)mgr.CardWidth + padding;
             }
+            x = padding;
             foreach (CardStack<BeanstalkCard> stack in game.BeanstalkStacks)
             {
                 int y = padding;
@@ -78,31 +79,56 @@ namespace WpfApplication1
                     DrawCard(card, mgr, x, y, BeanstalkStackCanvas, true);
                     y += (int)(mgr.CardHeight / 4);
                 }
+                x += (int)mgr.CardWidth + padding;
+            }
+            x = padding;
+            foreach (Card card in game.DiscardPile)
+            {
+                int y = padding;
+                DrawCard(card, mgr, x, y, DiscardPileCanvas, true);
+                y += (int)(mgr.CardHeight / 4);
             }
         }
 
-        private void DrawCard(Card card, UIParameterManager mgr, int x, int y, Canvas castleStackCanvas, bool darkColor = false)
+        private void DrawCard(Card card, UIParameterManager mgr, int x, int y, Canvas canvas, bool darkColor = false)
         {
-            UICard uiCard = new UICard(card, mgr, darkColor);
-            CastleStackCanvas.Children.Add(uiCard);
+            UICard uiCard = UICards.ContainsKey(card) ? UICards[card] : null;
+            if (null == uiCard)
+            {
+                uiCard = new UICard(card, mgr, darkColor);
+                canvas.Children.Add(uiCard);
+                UICards[card] = uiCard;
+            }
             Canvas.SetLeft(uiCard, x);
             Canvas.SetTop(uiCard, y);
-            UICards[card] = uiCard;
         }
 
         private void ClearCastleStacks()
         {
             CastleStackCanvas.Children.Clear();
+            BeanstalkStackCanvas.Children.Clear();
+            DiscardPileCanvas.Children.Clear();
             UICards.Clear();
         }
 
+        private int _turnCounter = 0;
+        private PlayerTurn _currentTurn = null;
+        private IEnumerator<IAction> _currentTurnActionEnumerator = null;
         private void NextButton_Click(object sender, RoutedEventArgs e)
         {
-            PlayerTurn turn = Game.GetNextTurn();
-            foreach (IAction action in turn.Actions)
+            if (_currentTurn == null || !_currentTurnActionEnumerator.MoveNext())
             {
-                action.Execute(Game);
+                _turnCounter++;
+                _currentTurn = Game.GetNextTurn();
+                _currentTurnActionEnumerator = _currentTurn.GetActions(Game).GetEnumerator();
+                if (!_currentTurnActionEnumerator.MoveNext())
+                {
+                    throw new Exception("Empty actions for turn");
+                }
+                this.Title = $"Turn {_turnCounter}: {_currentTurn.ActingPlayer.ToString()}'s turn";
             }
+            Console.WriteLine("# " + _currentTurnActionEnumerator.Current.ToString());
+            _currentTurnActionEnumerator.Current.Execute(Game);
             DrawCastleStacks();
         }
     }

@@ -33,5 +33,10 @@ namespace Jack
                 DestinationCardPosition.PutCard(game, movedCard);
             }
         }
+
+        public override string ToString()
+        {
+            return $"Shift [{SourceCardPosition}] to [{DestinationCardPosition}]";
+        }
     }
 }

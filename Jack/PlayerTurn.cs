@@ -6,13 +6,19 @@ using System.Threading.Tasks;
 
 namespace Jack
 {
-    public class PlayerTurn
+    public abstract class PlayerTurn
     {
         public PlayerTurn(Player actingPlayer)
         {
-            Actions = new List<IAction>();
+            ActingPlayer = actingPlayer;
         }
 
-        public List<IAction> Actions { get; private set; }
+        public abstract IEnumerable<IAction> GetActions(Game game);
+
+        public Player ActingPlayer
+        {
+            get;
+            private set;
+        }
     }
 }

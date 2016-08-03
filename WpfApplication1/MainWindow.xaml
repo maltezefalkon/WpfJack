@@ -5,18 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApplication1"
         mc:Ignorable="d"
-        Title="MainWindow" Height="649.635" Width="731.775">
-    <StackPanel>
+        Title="MainWindow" Height="675.119" Width="731.775">
+    <Grid>
         <ToolBarTray>
             <ToolBar>
                 <Button x:Name="NextButton" Click="NextButton_Click">Next &gt;</Button>
             </ToolBar>
         </ToolBarTray>
-        <Canvas x:Name="CastleStackCanvas">
-        </Canvas>
-        <Border BorderBrush="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}">
-            <Canvas x:Name="BeanstalkStackCanvas" Background="{DynamicResource {x:Static SystemColors.ActiveCaptionColor}}">
-            </Canvas>
-        </Border>
-    </StackPanel>
+        <DockPanel LastChildFill="True">
+            <Canvas x:Name="DiscardPileCanvas" Height="250" DockPanel.Dock="Top"/>
+            <Canvas x:Name="BeanstalkStackCanvas" Height="250" DockPanel.Dock="Top"/>
+            <Canvas x:Name="CastleStackCanvas" DockPanel.Dock="Top"/>
+        </DockPanel>
+    </Grid>
 </Window>

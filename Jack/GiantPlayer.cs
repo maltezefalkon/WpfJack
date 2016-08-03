@@ -14,22 +14,34 @@ namespace Jack
 
         public override PlayerTurn GetNextTurn(Game game)
         {
+            return new GiantPlayerTurn(this);
+        }
+
+        public override string ToString()
+        {
+            return "Giant";
+        }
+
+    }
+
+    public class GiantPlayerTurn : PlayerTurn
+    {
+        public GiantPlayerTurn(GiantPlayer player)
+            : base(player)
+        { }
+
+        public override IEnumerable<IAction> GetActions(Game game)
+        {
             ICardPositionDescriptor<Card> position = GetCardPositionToDiscard(game);
-            return new PlayerTurn(this)
+            yield return new GiantSmashAction()
             {
-                Actions =
-                {
-                    new GiantSmashAction()
-                    {
-                        SourceCardPosition = position
-                    }
-                }
+                SourceCardPosition = GetCardPositionToDiscard(game),
             };
         }
 
         private ICardPositionDescriptor<Card> GetCardPositionToDiscard(Game game)
         {
-            int maxValue = game.CardsInPlay.OfType<BeanstalkCard>().Max(x => x.Value);
+            int maxValue = game.CardsInPlay.OfType<BeanstalkCard>().Where(x => x.CardType == CardType.Beanstalk).Max(x => x.Value);
             IEnumerable<BeanstalkCard> highestValues = game.CardsInPlay.OfType<BeanstalkCard>().Where(x => x.Value == maxValue);
             BeanstalkCard toDiscard = highestValues.First();
             int castleStackIndex = game.FindCastleStackIndexForCard(toDiscard);

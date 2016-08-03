@@ -10,21 +10,37 @@ namespace Jack
     {
         public override PlayerTurn GetNextTurn(Game game)
         {
-            PlayerTurn ret = new PlayerTurn(this);
-            for (int i = 0; i < 3; i++)
+            return new JackPlayerTurn(this);
+        }
+
+        public override string ToString()
+        {
+            return "Jack";
+        }
+    }
+
+    public class JackPlayerTurn : PlayerTurn
+    {
+        public JackPlayerTurn(JackPlayer player)
+            : base(player)
+        {
+
+        }
+
+        public override IEnumerable<IAction> GetActions(Game game)
+        {
+            for (int i = 0; i< 3; i++)
             {
                 CardType want = GetCardTypeWanted(game);
-                IAction action = GetWantedCard(game, want);
-                ret.Actions.Add(action);
+                yield return GetWantedCard(game, want);
             }
-            return ret;
         }
 
         private IAction GetWantedCard(Game game, CardType type)
         {
-            if (type == CardType.Beanstalk)
-            {
-                Card card = Get(game);
+            Card card = SelectBeanstalkCard(game);
+            if (null != card)
+            { 
                 return new JackShiftAction()
                 {
                     SourceCardPosition = game.GetPositionDescriptorForCard(card),
@@ -35,19 +51,27 @@ namespace Jack
                     }
                 };
             }
-            throw new Exception();
+            else
+            {
+                throw new Exception("no selected card");
+            }
         }
 
-        private Card Get(Game game)
+        private BeanstalkCard SelectBeanstalkCard(Game game)
         {
             int minimumValue = (game.ActiveBeanstalkStack.LastOrDefault()?.Value ?? 0) + 1;
-            for (int i = minimumValue; i <= BeanstalkCard.MaximumValue; i++)
+            if (game.ActiveBeanstalkStack.Count == Game.RequiredBeanstalkCards)
+            {
+                minimumValue = BeanstalkCard.TreasureValue;
+            }
+            int maximumValue = game.ActiveBeanstalkStack.Count == Game.RequiredBeanstalkCards ? BeanstalkCard.TreasureValue : BeanstalkCard.MaximumValue;
+            for (int i = minimumValue; i <= maximumValue; i++)
             {
                 foreach (CardStack stack in game.CastleStacks)
                 {
-                    foreach (Card card in stack.GetEnds())
+                    foreach (BeanstalkCard card in stack.GetEnds().OfType<BeanstalkCard>())
                     {
-                        if (card.CardType == CardType.Beanstalk && ((BeanstalkCard)card).Value == i)
+                        if (card.Value == i)
                         {
                             return card;
                         }
@@ -59,7 +83,7 @@ namespace Jack
 
         private CardType GetCardTypeWanted(Game game)
         {
-            if (game.ActiveBeanstalkStack.Count == 6)
+            if (game.ActiveBeanstalkStack.Count == Game.RequiredBeanstalkCards)
             {
                 return CardType.Treasure;
             }

@@ -47,5 +47,10 @@ namespace Jack
         {
             Stack.GetStack(game).Insert(Index, (T)card); //HACK
         }
+
+        public override string ToString()
+        {
+            return $"Index {Index} from {Stack}";
+        }
     }
 }

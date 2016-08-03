@@ -58,5 +58,20 @@ namespace WpfApplication1.UI
                     return Colors.Gray;
             }
         }
+
+        public Color GetDarkerColor(CardType c)
+        {
+            switch (c)
+            {
+                case CardType.Beanstalk:
+                    return Color.FromRgb(0, 16, 0);
+                case CardType.Giant:
+                    return Colors.DarkRed;
+                case CardType.Treasure:
+                    return Colors.DarkBlue;
+                default:
+                    return Colors.Gray;
+            }
+        }
     }
 }
