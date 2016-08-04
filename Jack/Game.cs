@@ -57,6 +57,7 @@ namespace Jack
 
         public PlayerTurn GetNextTurn()
         {
+            TurnCounter++;
             PlayerTurn ret = CurrentPlayer.GetNextTurn(this);
             IsJacksTurn = !IsJacksTurn;
             return ret;
@@ -134,6 +135,12 @@ namespace Jack
                     Index = cardIndex
                 };
             }
+        }
+
+        public int TurnCounter
+        {
+            get;
+            private set;
         }
     }
 }

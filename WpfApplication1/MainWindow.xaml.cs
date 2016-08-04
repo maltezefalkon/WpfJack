@@ -112,21 +112,20 @@ namespace WpfApplication1
             UICards.Clear();
         }
 
-        private int _turnCounter = 0;
         private PlayerTurn _currentTurn = null;
         private IEnumerator<IAction> _currentTurnActionEnumerator = null;
+
         private void NextButton_Click(object sender, RoutedEventArgs e)
         {
             if (_currentTurn == null || !_currentTurnActionEnumerator.MoveNext())
             {
-                _turnCounter++;
                 _currentTurn = Game.GetNextTurn();
                 _currentTurnActionEnumerator = _currentTurn.GetActions(Game).GetEnumerator();
                 if (!_currentTurnActionEnumerator.MoveNext())
                 {
                     throw new Exception("Empty actions for turn");
                 }
-                this.Title = $"Turn {_turnCounter}: {_currentTurn.ActingPlayer.ToString()}'s turn";
+                this.Title = $"Turn {Game.TurnCounter}: {_currentTurn.ActingPlayer.ToString()}'s turn";
             }
             Console.WriteLine("# " + _currentTurnActionEnumerator.Current.ToString());
             _currentTurnActionEnumerator.Current.Execute(Game);

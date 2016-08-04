@@ -8,12 +8,6 @@ namespace Jack
 {
     public abstract class Player
     {
-        public List<IAction> AvailableActions
-        {
-            get;
-            protected set;
-        }
-
         public abstract PlayerTurn GetNextTurn(Game game);
     }
 

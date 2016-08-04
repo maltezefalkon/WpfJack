@@ -38,21 +38,17 @@ namespace Jack
             private set;
         }
 
-        public T GetEnd(StackEnd end)
+        public T GetEnd(StackEnd end, int offset)
         {
-            switch (end)
-            {
-                case StackEnd.Back: return BackCard;
-                case StackEnd.Front: return FrontCard;
-                default: throw new Exception();
-            }
+            int index = GetIndexForStackEnd(end, offset);
+            return this[index];
         }
 
         public T FrontCard => FrontIndex == -1 ? null : this[FrontIndex];
 
         public T BackCard => BackIndex == -1 ? null : this[BackIndex];
 
-        public void Push(StackEnd end, Card card)
+        public void Push(Card card, StackEnd end, int offset = 0)
         {
             if (end == StackEnd.Front)
             {
@@ -60,7 +56,7 @@ namespace Jack
             }
             else
             {
-                Insert(GetIndexForStackEnd(end), card);
+                Insert(GetIndexForStackEnd(end, offset), card);
             }
         }
 
@@ -68,22 +64,22 @@ namespace Jack
 
         public int BackIndex => 0;
 
-        public int GetIndexForStackEnd(StackEnd end)
+        public int GetIndexForStackEnd(StackEnd end, int offset = 0)
         {
             switch (end)
             {
                 case StackEnd.Back:
-                    return BackIndex;
+                    return BackIndex + offset;
                 case StackEnd.Front:
-                    return FrontIndex;
+                    return FrontIndex - offset;
                 default:
                     throw new Exception();
             }
         }
 
-        public T Pop(StackEnd end)
+        public T Pop(StackEnd end, int offset = 0)
         {
-            int idx = GetIndexForStackEnd(end);
+            int idx = GetIndexForStackEnd(end, offset);
             T ret = this[idx];
             RemoveAt(idx);
             return ret;

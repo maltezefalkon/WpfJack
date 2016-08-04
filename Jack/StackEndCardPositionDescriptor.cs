@@ -14,6 +14,12 @@ namespace Jack
             set;
         }
 
+        public int Offset
+        {
+            get;
+            set;
+        }
+
         public StackEnd End
         {
             get;
@@ -22,12 +28,12 @@ namespace Jack
 
         public Card PeekCard(Game game)
         {
-            return Stack.GetStack(game).GetEnd(End);
+            return Stack.GetStack(game).GetEnd(End, Offset);
         }
 
         public Card PluckCard(Game game)
         {
-            return Stack.GetStack(game).Pop(End);
+            return Stack.GetStack(game).Pop(End, Offset);
         }
 
         public bool IsValid(Game game)
@@ -37,12 +43,12 @@ namespace Jack
 
         public void PutCard(Game game, Card card)
         {
-            Stack.GetStack(game).Push(End, card);
+            Stack.GetStack(game).Push(card, End, Offset);
         }
 
         public int GetCardIndex(Game game)
         {
-            return Stack.GetStack(game).GetIndexForStackEnd(End);
+            return Stack.GetStack(game).GetIndexForStackEnd(End, Offset);
         }
 
         public override string ToString()

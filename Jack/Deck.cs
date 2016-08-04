@@ -22,7 +22,7 @@ namespace Jack
             {
                 for (int j = 0; j < copies; j++)
                 {
-                    Push(StackEnd.Front, new BeanstalkCard(i));
+                    Push(new BeanstalkCard(i), StackEnd.Front);
                 }
             }
         }
@@ -36,7 +36,7 @@ namespace Jack
                 {
                     for (int j = 0; j < copies; j++)
                     {
-                        Push(StackEnd.Front, new GiantCard(gct));
+                        Push(new GiantCard(gct), StackEnd.Front);
                     }
                 }
             }
@@ -51,7 +51,7 @@ namespace Jack
                 {
                     for (int j = 0; j < copies; j++)
                     {
-                        Push(StackEnd.Front, new TreasureCard(tct));
+                        Push(new TreasureCard(tct), StackEnd.Front);
                     }
                 }
             }

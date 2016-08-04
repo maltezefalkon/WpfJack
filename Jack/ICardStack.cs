@@ -11,11 +11,11 @@ namespace Jack
         string Name { get; }
         int Count { get; }
         T this[int index] { get; }
-        T GetEnd(StackEnd end);
+        T GetEnd(StackEnd end, int offset);
         IEnumerable<T> GetEnds();
-        int GetIndexForStackEnd(StackEnd end);
-        T Pop(StackEnd end);
-        void Push(StackEnd end, Card card);
+        int GetIndexForStackEnd(StackEnd end, int offset = 0);
+        T Pop(StackEnd end, int offset = 0);
+        void Push(Card card, StackEnd end, int offset = 0);
         void Shuffle();
         void Swap(int x, int y);
         void Insert(int index, Card card);
