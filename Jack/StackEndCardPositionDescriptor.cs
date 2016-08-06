@@ -51,9 +51,14 @@ namespace Jack
             return Stack.GetStack(game).GetIndexForStackEnd(End, Offset);
         }
 
+        public int? GetCastleStackIndex(Game game, Card card)
+        {
+            return (Stack.GetStack(game) as CastleStack)?.Index;
+        }
+
         public override string ToString()
         {
-            return $"{End} of {Stack}";
+            return $"{End}" + (Offset != 0 ? $"-{Offset}" : String.Empty) + $" of {Stack}" ;
         }
     }
 }

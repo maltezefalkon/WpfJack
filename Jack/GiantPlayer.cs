@@ -41,16 +41,10 @@ namespace Jack
 
         private ICardPositionDescriptor<Card> GetCardPositionToDiscard(Game game)
         {
-            int maxValue = game.CardsInPlay.OfType<BeanstalkCard>().Where(x => x.CardType == CardType.Beanstalk).Max(x => x.Value);
+            int maxValue = game.CardsInPlay.OfType<BeanstalkCard>().Max(x => x.Value);
             IEnumerable<BeanstalkCard> highestValues = game.CardsInPlay.OfType<BeanstalkCard>().Where(x => x.Value == maxValue);
             BeanstalkCard toDiscard = highestValues.First();
-            int castleStackIndex = game.FindCastleStackIndexForCard(toDiscard);
-            CastleStackDescriptor stack = new CastleStackDescriptor(castleStackIndex);
-            return new RandomCardPositionDescriptor<Card>()
-            {
-                Stack = stack,
-                Index = stack.GetStack(game).IndexOf(toDiscard)
-            };
+            return game.GetPositionDescriptorForCard(toDiscard);
         }
     }
 }

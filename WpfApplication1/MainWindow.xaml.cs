@@ -24,10 +24,14 @@ namespace WpfApplication1
     {
         private Dictionary<Card, UICard> UICards = new Dictionary<Card, UICard>();
 
+        private Log Log;
+
         public MainWindow()
         {
             Game = new Game();
             InitializeComponent();
+            Log = new Log(LogListBox);
+            Log.StaticInstance = Log;
         }
 
         public Game Game
@@ -59,9 +63,9 @@ namespace WpfApplication1
         private void DrawCastleStacks(Game game, UIParameterManager mgr)
         {
             ClearCastleStacks();
-            const int padding = 50;
+            const int padding = 25;
             int x = padding;
-            foreach (CardStack stack in game.CastleStacks)
+            foreach (CardStack<Card> stack in game.CastleStacks)
             {
                 int y = padding;
                 foreach (Card card in stack)
@@ -72,7 +76,7 @@ namespace WpfApplication1
                 x += (int)mgr.CardWidth + padding;
             }
             x = padding;
-            foreach (CardStack<BeanstalkCard> stack in game.BeanstalkStacks)
+            foreach (CardStack<ValuedCard> stack in game.BeanstalkStacks)
             {
                 int y = padding;
                 foreach (Card card in stack)
@@ -125,11 +129,32 @@ namespace WpfApplication1
                 {
                     throw new Exception("Empty actions for turn");
                 }
-                this.Title = $"Turn {Game.TurnCounter}: {_currentTurn.ActingPlayer.ToString()}'s turn";
+                string turnText = $"Turn {Game.TurnCounter}: {_currentTurn.ActingPlayer.ToString()}'s turn";
+                Title = turnText;
+                Log.WriteLine($"== {turnText} ==");
             }
-            Console.WriteLine("# " + _currentTurnActionEnumerator.Current.ToString());
+            Log.WriteLine(_currentTurnActionEnumerator.Current.ToString());
             _currentTurnActionEnumerator.Current.Execute(Game);
             DrawCastleStacks();
+        }
+
+    }
+
+    public class Log
+    {
+        private ListBox _listBox;
+        public Log(ListBox listBox)
+        {
+            _listBox = listBox;
+        }
+
+        public static Log StaticInstance;
+
+        public void WriteLine(string s)
+        {
+            Console.WriteLine(s);
+            _listBox.Items.Add(s);
+            _listBox.ScrollIntoView(s);
         }
     }
 }

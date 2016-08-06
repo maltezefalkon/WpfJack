@@ -6,21 +6,30 @@
         xmlns:local="clr-namespace:WpfApplication1"
         mc:Ignorable="d"
         Title="MainWindow" Height="794.835" Width="731.775">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="30" />
-            <RowDefinition Height="300" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-        <ToolBar Grid.Row="0" Grid.Column="0">
+    <DockPanel>
+        <ToolBar DockPanel.Dock="Top">
             <Button x:Name="NextButton" Click="NextButton_Click">Next &gt;</Button>
         </ToolBar>
-        <Canvas x:Name="DiscardPileCanvas" Grid.Column="0" Grid.Row="1" Height="{Binding Path=UIParameterManager.CardHeight}" />
-        <Canvas x:Name="BeanstalkStackCanvas" Grid.Column="1" Grid.Row="1" Height="{Binding Path=UIParameterManager.CardHeight}"/>
-        <Canvas x:Name="CastleStackCanvas" Grid.ColumnSpan="2" Grid.Row="2"/>
-    </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="3*" />
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Grid.Column="0" BorderThickness="1" BorderBrush="Black">
+                <Canvas x:Name="BeanstalkStackCanvas" />
+            </Border>
+            <Border Grid.Row="0" Grid.Column="1" BorderThickness="1" BorderBrush="Black">
+                <Canvas x:Name="DiscardPileCanvas" />
+            </Border>
+            <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="6" BorderBrush="Gray">
+                <Canvas x:Name="CastleStackCanvas" />
+            </Border>
+            <ListBox x:Name="LogListBox" DockPanel.Dock="Bottom" Grid.Row="3" Grid.ColumnSpan="2" />
+        </Grid>
+    </DockPanel>
 </Window>

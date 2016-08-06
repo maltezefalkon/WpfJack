@@ -35,80 +35,97 @@ namespace Jack
             }
         }
 
-        protected IEnumerable<Tuple<IAction, int>> GetPossibleActions(Game game)
+        protected IEnumerable<Tuple<IAction, decimal>> GetPossibleActions(Game game)
         {
-            Tuple<IAction, int> buildActionTuple = GenerateBuildAction(game);
-            yield return buildActionTuple;
-            Tuple<IAction, int> shiftActionTuple = GenerateShiftAction(game);
-            yield return shiftActionTuple;
-        }
-
-        private Tuple<IAction, int> GenerateBuildAction(Game game)
-        {
-            StackEndCardPositionDescriptor buildCardDescriptor = SelectBeanstalkCardForBuilding(game);
-            if (null == buildCardDescriptor)
+            ActiveBeanstalkStackStats stats = GetActiveBeanstalkMinMax(game);
+            IEnumerable<StackEndCardPositionDescriptor> buildableCards = GetBuildableCards(game)
+                .Select(x => game.GetPositionDescriptorForCard(x));
+            var scores = buildableCards.Select(x => new { Descriptor = x, Score = 50 / (x.Offset + 1 + ((ValuedCard)x.PeekCard(game)).Value) - stats.Minimum });
+            StackEndCardPositionDescriptor targetBuildCard = scores.First(x => x.Score == scores.Max(y => y.Score)).Descriptor;
+            if (targetBuildCard.Offset == 0)
             {
-                return null;
-            }
-            else
-            {
-                return new Tuple<IAction, int>(
+                yield return new Tuple<IAction, decimal>(
                     new JackShiftAction()
                     {
-                        SourceCardPosition = buildCardDescriptor,
+                        SourceCardPosition = targetBuildCard,
                         DestinationCardPosition = new StackEndCardPositionDescriptor()
                         {
                             End = StackEnd.Front,
                             Stack = new ActiveBeanstalkStackDescriptor()
                         }
-                    }, 50);
-            }
-        }
-
-        private Tuple<IAction, int> GenerateShiftAction(Game game)
-        {
-            StackEndCardPositionDescriptor buildCardDescriptor = SelectBeanstalkCardForBuilding(game);
-            if (null != buildCardDescriptor)
-            {
-                MinMax<int> minMax = GetActiveBeanstalkMinMax(game);
-                BeanstalkCard c = buildCardDescriptor.PeekCard(game) as BeanstalkCard;
-                if (null != c && c.Value == minMax.Minimum)
-                {
-                    return null;
-                }
-            }
-            StackEndCardPositionDescriptor digCard = SelectBeanstalkCardForDigging(game);
-            if (null == digCard)
-            {
-                return null;
+                    }, 1m);
             }
             else
             {
                 StackEndCardPositionDescriptor dest = new StackEndCardPositionDescriptor();
-                if (digCard.End == StackEnd.Back)
+                if (targetBuildCard.End == StackEnd.Back)
                 {
                     dest.End = StackEnd.Front;
                     dest.Offset = 0;
-                    dest.Stack = digCard.Stack;
+                    dest.Stack = targetBuildCard.Stack;
                 }
                 else
                 {
                     StackEndCardPositionDescriptor giant = FindFrontmostGiantCard(game);
-                    dest = new StackEndCardPositionDescriptor()
+                    if (giant.End == StackEnd.Front && giant.Offset == 0 && giant.Stack.GetStack(game) != targetBuildCard.Stack.GetStack(game))
                     {
-                        End = StackEnd.Front,
-                        Offset = 0,
-                        Stack = giant.Stack
-                    };
+                        dest = new StackEndCardPositionDescriptor()
+                        {
+                            End = StackEnd.Front,
+                            Offset = 0,
+                            Stack = giant.Stack
+                        };
+                    }
+                    else
+                    {
+                        Random r = new Random();
+                        int destStack = r.Next(0, game.CastleStacks.Length - 2);
+                        if (destStack >= giant.Stack.GetStack(game).Index)
+                        {
+                            destStack++;
+                        }
+                        dest = new StackEndCardPositionDescriptor()
+                        {
+                            End = StackEnd.Front,
+                            Offset = 0,
+                            Stack = new CastleStackDescriptor(destStack)
+                        };
+                    }
                 }
-                return new Tuple<IAction, int>(
-                    new JackShiftAction()
-                    {
-                        SourceCardPosition = digCard,
-                        DestinationCardPosition = dest
-                    }, 30);
+                if (dest != null)
+                {
+                    yield return new Tuple<IAction, decimal>(
+                        new JackShiftAction()
+                        {
+                            SourceCardPosition = new StackEndCardPositionDescriptor()
+                            {
+                                End = targetBuildCard.End,
+                                Offset = 0,
+                                Stack = targetBuildCard.Stack
+                            },
+                            DestinationCardPosition = dest
+                        }, 0.30m);
+                }
+            }
+            //Tuple<IAction, decimal> buildActionTuple = GenerateBuildAction(game);
+            //yield return buildActionTuple;
+            //Tuple<IAction, decimal> shiftActionTuple = GenerateShiftAction(game);
+            //yield return shiftActionTuple;
+        }
+
+        private IEnumerable<ValuedCard> GetBuildableCards(Game game)
+        {
+            if (game.ActiveBeanstalkStack.Count == Game.RequiredBeanstalkCards)
+            {
+                return game.CardsInPlay.OfType<TreasureCard>();
+            }
+            else
+            {
+                ActiveBeanstalkStackStats stats = GetActiveBeanstalkMinMax(game);
+                return game.CardsInPlay.OfType<BeanstalkCard>().Where(x => x.Value >= stats.Minimum && x.Value <= stats.Maximum);
             }
         }
+
 
         private StackEndCardPositionDescriptor FindFrontmostGiantCard(Game game)
         {
@@ -118,7 +135,6 @@ namespace Jack
         private Tuple<StackEndCardPositionDescriptor, int> FindFirstBeanstalkCard(Game game, Func<Card, bool> evaluationFunction, int maxDistance = 5)
         {
             Tuple<StackEndCardPositionDescriptor, int> ret = null;
-            MinMax<int> minMax = GetActiveBeanstalkMinMax(game);
             for (int i = 0; i <= maxDistance; i++)
             {
                 for (int j = 0; j < game.CastleStacks.Length; j++)
@@ -155,22 +171,6 @@ namespace Jack
             return ret;
         }
 
-        private StackEndCardPositionDescriptor SelectBeanstalkCardForBuilding(Game game)
-        {
-            StackEndCardPositionDescriptor ret = null;
-            MinMax <int> minMax = GetActiveBeanstalkMinMax(game);
-            for (int i = minMax.Minimum; i <= minMax.Maximum; i++)
-            {
-                Tuple<StackEndCardPositionDescriptor, int> tuple = FindFirstBeanstalkCard(game, c => EvaluateBeanstalkCard(c, b => b.Value == i), 0);
-                ret = tuple?.Item1;
-                if (null != ret)
-                {
-                    break;
-                }
-            }
-            return ret;
-        }
-
         private bool EvaluateBeanstalkCard(Card c, Func<BeanstalkCard, bool> evaluationFunction)
         {
             BeanstalkCard b = c as BeanstalkCard;
@@ -184,38 +184,34 @@ namespace Jack
             }
         }
 
-        private StackEndCardPositionDescriptor SelectBeanstalkCardForDigging(Game game)
+        private ActiveBeanstalkStackStats GetActiveBeanstalkMinMax(Game game)
         {
-            MinMax<int> minMax = GetActiveBeanstalkMinMax(game);
-            Tuple<StackEndCardPositionDescriptor, int> tuple = FindFirstBeanstalkCard(game, c => EvaluateBeanstalkCard(c, b => b.Value == minMax.Minimum));
-            if (null != tuple && tuple.Item2 == 1)
-            { 
-                StackEndCardPositionDescriptor desc = new StackEndCardPositionDescriptor()
-                {
-                    End = tuple.Item1.End,
-                    Offset = 0,
-                    Stack = new CastleStackDescriptor(game.FindCastleStackIndexForCard(tuple.Item1.PeekCard(game)))
-                };
-                return desc;
-            }
-            return null;
-        }
-
-        private MinMax<int> GetActiveBeanstalkMinMax(Game game)
-        {
-            int minimumValue = (game.ActiveBeanstalkStack.LastOrDefault()?.Value ?? 0) + 1;
+            int minimumValue = Math.Max((game.ActiveBeanstalkStack.LastOrDefault()?.Value ?? 0) + 1, game.CardsInPlay.OfType<BeanstalkCard>().Min(x => x.Value));
+            int maxCardAvailable = game.CardsInPlay.OfType<BeanstalkCard>().Max(x => x.Value);
+            int currentSkips = minimumValue - game.ActiveBeanstalkStack.Count - 1;
+            int remainingSkips = maxCardAvailable - Game.RequiredBeanstalkCards - currentSkips;
+            int maximumValue = minimumValue + remainingSkips;
             if (game.ActiveBeanstalkStack.Count == Game.RequiredBeanstalkCards)
             {
-                minimumValue = BeanstalkCard.TreasureValue;
+                minimumValue = maximumValue = BeanstalkCard.TreasureValue;
             }
-            int maximumValue = game.ActiveBeanstalkStack.Count == Game.RequiredBeanstalkCards ? TreasureCard.TreasureValue : BeanstalkCard.MaximumValue;
-            return new MinMax<int>() { Minimum = minimumValue, Maximum = maximumValue };
+            return new ActiveBeanstalkStackStats()
+            {
+                Minimum = minimumValue,
+                Maximum = maximumValue,
+                MaxCardAvailable = maxCardAvailable,
+                CurrentSkips = currentSkips,
+                RemainingSkips = remainingSkips
+            };
         }
     }
 
-    public struct MinMax<T> where T : struct
+    public struct ActiveBeanstalkStackStats
     {
-        public T Minimum;
-        public T Maximum;
+        public int Minimum;
+        public int Maximum;
+        public int MaxCardAvailable;
+        public int CurrentSkips;
+        public int RemainingSkips;
     }
 }

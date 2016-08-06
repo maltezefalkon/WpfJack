@@ -36,7 +36,7 @@ namespace Jack
 
         public override string ToString()
         {
-            return $"Shift [{SourceCardPosition}] to [{DestinationCardPosition}]";
+            return $"{GetType().Name} Shift [{SourceCardPosition}] to [{DestinationCardPosition}]";
         }
     }
 }

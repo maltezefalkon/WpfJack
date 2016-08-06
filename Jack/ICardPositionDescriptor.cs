@@ -14,5 +14,6 @@ namespace Jack
         void PutCard(Game game, Card card);
         bool IsValid(Game game);
         int GetCardIndex(Game game);
+        int? GetCastleStackIndex(Game game, Card card);
     }
 }

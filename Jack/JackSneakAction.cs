@@ -16,5 +16,6 @@ namespace Jack
     public class JackShiftAction : CardShiftAction
     {
         public override int NumberOfCardsAffected => 1;
+
     }
 }

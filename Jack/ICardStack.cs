@@ -2,7 +2,7 @@
 
 namespace Jack
 {
-    public interface ICardStack<out T> where T : Card
+    public interface ICardStack<out T> : IEnumerable<T> where T : Card 
     {
         T BackCard { get; }
         int BackIndex { get; }
@@ -10,6 +10,8 @@ namespace Jack
         int FrontIndex { get; }
         string Name { get; }
         int Count { get; }
+        int Index { get; set; }
+
         T this[int index] { get; }
         T GetEnd(StackEnd end, int offset);
         IEnumerable<T> GetEnds();

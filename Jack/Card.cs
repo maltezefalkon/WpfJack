@@ -14,15 +14,15 @@ namespace Jack
         public abstract string Abbreviation { get; }
     }
 
-    public class BeanstalkCard : Card
+    public class BeanstalkCard : ValuedCard
     {
         public static int MinimumValue = 1;
         public static int MaximumValue = 9;
         public static int TreasureValue = MaximumValue + 1;
 
         public BeanstalkCard(int value)
+            : base(value)
         {
-            Value = value;
         }
 
         public override CardType CardType
@@ -31,20 +31,6 @@ namespace Jack
             {
                 return CardType.Beanstalk;
             }
-        }
-
-        public override string Abbreviation
-        {
-            get
-            {
-                return Value.ToString();
-            }
-        }
-
-        public int Value
-        {
-            get;
-            private set;
         }
     }
 
@@ -78,7 +64,7 @@ namespace Jack
         }
     }
 
-    public class TreasureCard : BeanstalkCard
+    public class TreasureCard : ValuedCard
     {
         public TreasureCard(TreasureCardType type)
             : base(BeanstalkCard.MaximumValue + 1)
@@ -106,6 +92,28 @@ namespace Jack
             {
                 return CardType.Treasure;
             }
+        }
+    }
+
+    public abstract class ValuedCard : Card
+    {
+        protected ValuedCard(int value)
+        {
+            Value = value;
+        }
+
+        public override string Abbreviation
+        {
+            get
+            {
+                return Value.ToString();
+            }
+        }
+
+        public int Value
+        {
+            get;
+            private set;
         }
     }
 }

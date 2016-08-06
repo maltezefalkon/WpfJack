@@ -64,6 +64,12 @@ namespace Jack
 
         public int BackIndex => 0;
 
+        public int Index
+        {
+            get;
+            set;
+        }
+
         public int GetIndexForStackEnd(StackEnd end, int offset = 0)
         {
             switch (end)
