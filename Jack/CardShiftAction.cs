@@ -32,11 +32,18 @@ namespace Jack
                 Card movedCard = SourceCardPosition.PluckCard(game);
                 DestinationCardPosition.PutCard(game, movedCard);
             }
+            game.CheckWinConditions();
         }
 
         public override string ToString()
         {
-            return $"{GetType().Name} Shift [{SourceCardPosition}] to [{DestinationCardPosition}]";
+            return $"{Strategy} Shift [{SourceCardPosition}] to [{DestinationCardPosition}]";
+        }
+
+        public string Strategy
+        {
+            get;
+            set;
         }
     }
 }

@@ -40,6 +40,10 @@ namespace Jack
             ActiveBeanstalkStackStats stats = GetActiveBeanstalkMinMax(game);
             IEnumerable<StackEndCardPositionDescriptor> buildableCards = GetBuildableCards(game)
                 .Select(x => game.GetPositionDescriptorForCard(x));
+            if (!buildableCards.Any())
+            {
+                throw new Exception("No buildable card found");
+            }
             var scores = buildableCards.Select(x => new { Descriptor = x, Score = 50 / (x.Offset + 1 + ((ValuedCard)x.PeekCard(game)).Value) - stats.Minimum });
             StackEndCardPositionDescriptor targetBuildCard = scores.First(x => x.Score == scores.Max(y => y.Score)).Descriptor;
             if (targetBuildCard.Offset == 0)
@@ -115,7 +119,7 @@ namespace Jack
 
         private IEnumerable<ValuedCard> GetBuildableCards(Game game)
         {
-            if (game.ActiveBeanstalkStack.Count == Game.RequiredBeanstalkCards)
+            if (game.ActiveBeanstalkStack.Count == game.RequiredBeanstalkCards)
             {
                 return game.CardsInPlay.OfType<TreasureCard>();
             }
@@ -189,9 +193,9 @@ namespace Jack
             int minimumValue = Math.Max((game.ActiveBeanstalkStack.LastOrDefault()?.Value ?? 0) + 1, game.CardsInPlay.OfType<BeanstalkCard>().Min(x => x.Value));
             int maxCardAvailable = game.CardsInPlay.OfType<BeanstalkCard>().Max(x => x.Value);
             int currentSkips = minimumValue - game.ActiveBeanstalkStack.Count - 1;
-            int remainingSkips = maxCardAvailable - Game.RequiredBeanstalkCards - currentSkips;
+            int remainingSkips = maxCardAvailable - game.RequiredBeanstalkCards - currentSkips;
             int maximumValue = minimumValue + remainingSkips;
-            if (game.ActiveBeanstalkStack.Count == Game.RequiredBeanstalkCards)
+            if (game.ActiveBeanstalkStack.Count == game.RequiredBeanstalkCards)
             {
                 minimumValue = maximumValue = BeanstalkCard.TreasureValue;
             }

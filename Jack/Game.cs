@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,11 +27,18 @@ namespace Jack
             set;
         }
 
+        public IList<PlayerTurn> AllTurns
+        {
+            get;
+            private set;
+        }
+
         public Game()
         {
             Jack = new JackPlayer();
             Giant = new GiantPlayer();
             Deck = new Deck();
+            AllTurns = new List<PlayerTurn>(50);
         }
 
         public void Init()
@@ -46,7 +54,7 @@ namespace Jack
                     CastleStacks[i].Add(Deck.Pop(StackEnd.Front));
                 }
             }
-            DiscardPile = new CardStack("Discard Pile");
+            DiscardPile = new CardStack<Card>("Discard Pile");
             BeanstalkStacks = new CardStack<ValuedCard>[3];
             for (int i = 0; i < BeanstalkStacks.Length; i++)
             {
@@ -57,10 +65,41 @@ namespace Jack
 
         public PlayerTurn GetNextTurn()
         {
+            if (null != Win)
+            {
+                throw new InvalidOperationException();
+            }
             TurnCounter++;
             PlayerTurn ret = CurrentPlayer.GetNextTurn(this);
+            AllTurns.Add(ret);
+            Debug.Assert(AllTurns.Count == TurnCounter);
             IsJacksTurn = !IsJacksTurn;
             return ret;
+        }
+
+        public virtual Win CheckWinConditions()
+        {
+            if (ActiveBeanstalkStack == null && TurnCounter > 1)
+            {
+                Win = new Win(IsJacksTurn ? (Player)Giant : Jack);
+                return Win;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public Win Win
+        {
+            get;
+            private set;
+        }
+
+        public Player WinningPlayer
+        {
+            get;
+            private set;
         }
 
         public bool IsJacksTurn
@@ -77,13 +116,16 @@ namespace Jack
             private set;
         }
 
-        public CardStack DiscardPile
+        public CardStack<Card> DiscardPile
         {
             get;
             private set;
         }
 
-        public const int RequiredBeanstalkCards = 6;
+        public virtual int RequiredBeanstalkCards
+        {
+            get { return 5; }
+        }
 
         public CardStack<ValuedCard> ActiveBeanstalkStack => BeanstalkStacks.FirstOrDefault(x => x.Count < RequiredBeanstalkCards + 1);
 

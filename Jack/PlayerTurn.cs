@@ -13,6 +13,12 @@ namespace Jack
             ActingPlayer = actingPlayer;
         }
 
+        public virtual Win Win
+        {
+            get;
+            internal set;
+        }
+
         public abstract IEnumerable<IAction> GetActions(Game game);
 
         protected virtual IAction SelectAction(Game game, IEnumerable<Tuple<IAction, decimal>> possibleActions)

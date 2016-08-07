@@ -121,6 +121,10 @@ namespace WpfApplication1
 
         private void NextButton_Click(object sender, RoutedEventArgs e)
         {
+            if (_currentTurn?.Win != null)
+            {
+                throw new Exception();
+            }
             if (_currentTurn == null || !_currentTurnActionEnumerator.MoveNext())
             {
                 _currentTurn = Game.GetNextTurn();
@@ -133,9 +137,16 @@ namespace WpfApplication1
                 Title = turnText;
                 Log.WriteLine($"== {turnText} ==");
             }
-            Log.WriteLine(_currentTurnActionEnumerator.Current.ToString());
             _currentTurnActionEnumerator.Current.Execute(Game);
+            Log.WriteLine(_currentTurnActionEnumerator.Current.ToString());
             DrawCastleStacks();
+            if (Game.Win != null)
+            {
+                string text = Game.Win.WinningPlayer.ToString() + " WIN";
+                Title = text;
+                Log.WriteLine(text);
+                NextButton.IsEnabled = false;
+            }
         }
 
     }

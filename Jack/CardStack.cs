@@ -6,20 +6,6 @@ using System.Threading.Tasks;
 
 namespace Jack
 {
-    public class CardStack : CardStack<Card>, ICardStack<Card>
-    {
-        public CardStack()
-            : this(Guid.NewGuid().ToString())
-        {
-        }
-
-        public CardStack(string name)
-            : base(name)
-        {
-        }
-
-    }
-
     public class CardStack<T> : List<T>, ICardStack<T> where T : Card
     {
         public CardStack()

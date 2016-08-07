@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Jack
 {
-    public class Deck : CardStack
+    public class Deck : CardStack<Card>
     {
         public Deck()
         {
