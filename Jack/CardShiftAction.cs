@@ -13,6 +13,12 @@ namespace Jack
 
         public abstract int NumberOfCardsAffected { get; }
 
+        public bool IsExecuted
+        {
+            get;
+            private set;
+        }
+
         public virtual bool IsValid(Game game)
         {
             return
@@ -29,21 +35,23 @@ namespace Jack
         {
             for (int i = 0; i < NumberOfCardsAffected; i++)
             {
+                game.BeginAction(this);
                 Card movedCard = SourceCardPosition.PluckCard(game);
                 DestinationCardPosition.PutCard(game, movedCard);
+                game.CompleteAction(this);
             }
+            IsExecuted = true;
             game.CheckWinConditions();
         }
 
         public override string ToString()
         {
-            return $"{Strategy} Shift [{SourceCardPosition}] to [{DestinationCardPosition}]";
+            return $"Shift [{SourceCardPosition}] to [{DestinationCardPosition}]";
         }
 
-        public string Strategy
+        public virtual string ToString(Game game = null)
         {
-            get;
-            set;
+            return $"Shift [{SourceCardPosition} ({SourceCardPosition.PeekCard(game)})] to [{DestinationCardPosition}]";
         }
     }
 }

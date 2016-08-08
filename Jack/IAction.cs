@@ -10,5 +10,7 @@ namespace Jack
     {
         bool IsValid(Game game);
         void Execute(Game game);
+        string ToString(Game game);
+        bool IsExecuted { get; }
     }
 }

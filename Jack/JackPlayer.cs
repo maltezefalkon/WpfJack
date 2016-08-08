@@ -37,7 +37,7 @@ namespace Jack
 
         protected IEnumerable<Tuple<IAction, decimal>> GetPossibleActions(Game game)
         {
-            ActiveBeanstalkStackStats stats = GetActiveBeanstalkMinMax(game);
+            Game.ActiveBeanstalkStackStats stats = game.GetActiveBeanstalkMinMax();
             IEnumerable<StackEndCardPositionDescriptor> buildableCards = GetBuildableCards(game)
                 .Select(x => game.GetPositionDescriptorForCard(x));
             if (!buildableCards.Any())
@@ -125,7 +125,7 @@ namespace Jack
             }
             else
             {
-                ActiveBeanstalkStackStats stats = GetActiveBeanstalkMinMax(game);
+                Game.ActiveBeanstalkStackStats stats = game.GetActiveBeanstalkMinMax();
                 return game.CardsInPlay.OfType<BeanstalkCard>().Where(x => x.Value >= stats.Minimum && x.Value <= stats.Maximum);
             }
         }
@@ -188,34 +188,5 @@ namespace Jack
             }
         }
 
-        private ActiveBeanstalkStackStats GetActiveBeanstalkMinMax(Game game)
-        {
-            int minimumValue = Math.Max((game.ActiveBeanstalkStack.LastOrDefault()?.Value ?? 0) + 1, game.CardsInPlay.OfType<BeanstalkCard>().Min(x => x.Value));
-            int maxCardAvailable = game.CardsInPlay.OfType<BeanstalkCard>().Max(x => x.Value);
-            int currentSkips = minimumValue - game.ActiveBeanstalkStack.Count - 1;
-            int remainingSkips = maxCardAvailable - game.RequiredBeanstalkCards - currentSkips;
-            int maximumValue = minimumValue + remainingSkips;
-            if (game.ActiveBeanstalkStack.Count == game.RequiredBeanstalkCards)
-            {
-                minimumValue = maximumValue = BeanstalkCard.TreasureValue;
-            }
-            return new ActiveBeanstalkStackStats()
-            {
-                Minimum = minimumValue,
-                Maximum = maximumValue,
-                MaxCardAvailable = maxCardAvailable,
-                CurrentSkips = currentSkips,
-                RemainingSkips = remainingSkips
-            };
-        }
-    }
-
-    public struct ActiveBeanstalkStackStats
-    {
-        public int Minimum;
-        public int Maximum;
-        public int MaxCardAvailable;
-        public int CurrentSkips;
-        public int RemainingSkips;
     }
 }

@@ -27,7 +27,14 @@ namespace Jack
         public T GetEnd(StackEnd end, int offset)
         {
             int index = GetIndexForStackEnd(end, offset);
-            return this[index];
+            if (index == -1)
+            {
+                return null;
+            }
+            else
+            {
+                return this[index];
+            }
         }
 
         public T FrontCard => FrontIndex == -1 ? null : this[FrontIndex];

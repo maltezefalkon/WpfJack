@@ -68,7 +68,7 @@ namespace Jack
 
         public bool IsValid(Game game)
         {
-            throw new NotImplementedException();
+            return game.ActiveBeanstalkStack != null;
         }
         public override string ToString()
         {

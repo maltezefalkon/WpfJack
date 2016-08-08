@@ -12,6 +12,10 @@ namespace Jack
     {
         public abstract CardType CardType { get; }
         public abstract string Abbreviation { get; }
+        public override string ToString()
+        {
+            return $"{CardType} {Abbreviation}";
+        }
     }
 
     public class BeanstalkCard : ValuedCard
@@ -32,6 +36,7 @@ namespace Jack
                 return CardType.Beanstalk;
             }
         }
+
     }
 
     public class GiantCard : Card

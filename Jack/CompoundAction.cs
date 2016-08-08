@@ -19,12 +19,19 @@ namespace Jack
             private set;
         }
 
+        public bool IsExecuted
+        {
+            get;
+            private set;
+        }
+
         public void Execute(Game game)
         {
             foreach (IAction action in Components)
             {
                 action.Execute(game);
             }
+            IsExecuted = true;
         }
 
         public bool IsValid(Game game)
@@ -37,6 +44,11 @@ namespace Jack
                 }
             }
             return true;
+        }
+
+        public string ToString(Game game)
+        {
+            return String.Join("/", Components.Select(x => x.ToString(game)));
         }
     }
 }

@@ -8,7 +8,11 @@
         Title="MainWindow" Height="794.835" Width="731.775">
     <DockPanel>
         <ToolBar DockPanel.Dock="Top">
-            <Button x:Name="NextButton" Click="NextButton_Click">Next &gt;</Button>
+            <Button x:Name="NextButton" Click="NextButton_Click">Step &gt;</Button>
+            <Button x:Name="RunButton" Click="RunButton_Click">Run &gt;&gt;</Button>
+            <Slider x:Name="RunSpeedSlider" Minimum="0" Maximum="10" Width="125" Value="3" ValueChanged="RunSpeedSlider_ValueChanged"></Slider>
+            <Separator />
+            <Button x:Name="Reset" Click="Reset_Click">Reset</Button>
         </ToolBar>
         <Grid>
             <Grid.ColumnDefinitions>

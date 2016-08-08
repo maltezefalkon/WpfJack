@@ -33,12 +33,19 @@ namespace Jack
             private set;
         }
 
+        public List<IAction> AllActions
+        {
+            get;
+            private set;
+        }
+
         public Game()
         {
             Jack = new JackPlayer();
             Giant = new GiantPlayer();
             Deck = new Deck();
             AllTurns = new List<PlayerTurn>(50);
+            AllActions = new List<IAction>(100);
         }
 
         public void Init()
@@ -81,13 +88,78 @@ namespace Jack
         {
             if (ActiveBeanstalkStack == null && TurnCounter > 1)
             {
-                Win = new Win(IsJacksTurn ? (Player)Giant : Jack);
+                Win = new JackWin(Jack);
+                return Win;
+            }
+            else if (CheckGiantHorizontalWinCondition())
+            {
+                Win = new GiantHorizontalWin(Giant);
+                return Win;
+            }
+            else if (CheckGiantVerticalWinCondition())
+            {
+                Win = new GiantVerticalWin(Giant);
+                return Win;
+            }
+            else if (CheckGiantDiscardWinCondition())
+            {
+                Win = new GiantWinByDiscard(Giant);
                 return Win;
             }
             else
             {
                 return null;
             }
+        }
+
+        private bool CheckGiantDiscardWinCondition()
+        {
+            ActiveBeanstalkStackStats stats = GetActiveBeanstalkMinMax();
+            if (null != stats)
+            {
+                if (stats.RemainingSkips < 0 && ActiveBeanstalkStack.Count < RequiredBeanstalkCards)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool CheckGiantHorizontalWinCondition()
+        {
+            IEnumerable<GiantCard> frontGiantCards = CastleStacks.Where(x => x.Any()).Select(x => x.Last()).OfType<GiantCard>();
+            return FeeFieFoeFum(frontGiantCards);
+        }
+
+        private bool FeeFieFoeFum(IEnumerable<GiantCard> cards)
+        {
+            foreach (GiantCardType gct in Enum.GetValues(typeof(GiantCardType)))
+            {
+                if (gct != GiantCardType.Unknown)
+                {
+                    if (!cards.Any(x => x.GiantCardType == gct))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        private bool CheckGiantVerticalWinCondition()
+        {
+            foreach (CastleStack castleStack in CastleStacks)
+            {
+                for (int i = 0; i <= castleStack.Count - 4; i++)
+                {
+                    IEnumerable<GiantCard> giantCards = castleStack.Skip(i).Take(4).OfType<GiantCard>();
+                    if (giantCards.Count() == 4 && FeeFieFoeFum(giantCards))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         public Win Win
@@ -122,10 +194,7 @@ namespace Jack
             private set;
         }
 
-        public virtual int RequiredBeanstalkCards
-        {
-            get { return 5; }
-        }
+        public virtual int RequiredBeanstalkCards => 6;
 
         public CardStack<ValuedCard> ActiveBeanstalkStack => BeanstalkStacks.FirstOrDefault(x => x.Count < RequiredBeanstalkCards + 1);
 
@@ -172,6 +241,45 @@ namespace Jack
         {
             get;
             private set;
+        }
+
+        public ActiveBeanstalkStackStats GetActiveBeanstalkMinMax()
+        {
+            int minimumValue = Math.Max((ActiveBeanstalkStack.LastOrDefault()?.Value ?? 0) + 1, CardsInPlay.OfType<BeanstalkCard>().Min(x => x.Value));
+            int maxCardAvailable = CardsInPlay.OfType<BeanstalkCard>().Max(x => x.Value);
+            int currentSkips = minimumValue - ActiveBeanstalkStack.Count - 1;
+            int remainingSkips = maxCardAvailable - RequiredBeanstalkCards - currentSkips;
+            int maximumValue = minimumValue + remainingSkips;
+            if (ActiveBeanstalkStack.Count == RequiredBeanstalkCards)
+            {
+                minimumValue = maximumValue = BeanstalkCard.TreasureValue;
+            }
+            return new ActiveBeanstalkStackStats()
+            {
+                Minimum = minimumValue,
+                Maximum = maximumValue,
+                MaxCardAvailable = maxCardAvailable,
+                CurrentSkips = currentSkips,
+                RemainingSkips = remainingSkips
+            };
+        }
+
+        public class ActiveBeanstalkStackStats
+        {
+            public int Minimum;
+            public int Maximum;
+            public int MaxCardAvailable;
+            public int CurrentSkips;
+            public int RemainingSkips;
+        }
+
+        public void BeginAction(IAction action)
+        {
+        }
+
+        public void CompleteAction(IAction action)
+        {
+            AllActions.Add(action);
         }
     }
 }

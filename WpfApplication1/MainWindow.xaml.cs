@@ -25,10 +25,10 @@ namespace WpfApplication1
         private Dictionary<Card, UICard> UICards = new Dictionary<Card, UICard>();
 
         private Log Log;
+        private int RunSpeed = 250;
 
         public MainWindow()
         {
-            Game = new Game();
             InitializeComponent();
             Log = new Log(LogListBox);
             Log.StaticInstance = Log;
@@ -49,10 +49,21 @@ namespace WpfApplication1
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
-            Game.Init();
             UIParameterManager = new UIParameterManager();
             DataContext = new ViewModel(UIParameterManager, Game);
+            InitializeGame();
+        }
+
+        private void InitializeGame()
+        {
+            _currentTurn = null;
+            _currentTurnActionEnumerator = null;
+            Game = new Game();
+            Game.Init();
             DrawCastleStacks();
+            Title = "New Game";
+            NextButton.IsEnabled = true;
+            RunButton.IsEnabled = true;
         }
 
         private void DrawCastleStacks()
@@ -65,18 +76,24 @@ namespace WpfApplication1
             ClearCastleStacks();
             const int padding = 25;
             int x = padding;
-            foreach (CardStack<Card> stack in game.CastleStacks)
+            CardShiftAction csa = Game.AllActions.LastOrDefault() as CardShiftAction;
+            Card lastCard = null;
+            if (null != csa && csa.DestinationCardPosition.IsValid(Game))
+            {
+                lastCard = csa.DestinationCardPosition.PeekCard(Game);
+            }
+            foreach (CardStack<Card> stack in Game.CastleStacks)
             {
                 int y = padding;
                 foreach (Card card in stack)
                 {
-                    DrawCard(card, mgr, x, y, CastleStackCanvas, 1);
+                    DrawCard(card, mgr, x, y, CastleStackCanvas, Object.ReferenceEquals(lastCard, card) ? 0 : 1);
                     y += (int)(mgr.CardHeight / 4);
                 }
                 x += (int)mgr.CardWidth + padding;
             }
             x = padding;
-            foreach (CardStack<ValuedCard> stack in game.BeanstalkStacks)
+            foreach (CardStack<ValuedCard> stack in Game.BeanstalkStacks)
             {
                 int y = padding;
                 foreach (Card card in stack)
@@ -125,6 +142,23 @@ namespace WpfApplication1
             {
                 throw new Exception();
             }
+            AdvanceGameStep();
+        }
+
+        private void ShowGameWin()
+        {
+            if (Game.Win != null)
+            {
+                string text = Game.Win.ToString();
+                Title = text;
+                Log.WriteLine(text);
+                NextButton.IsEnabled = false;
+                RunButton.IsEnabled = false;
+            }
+        }
+
+        protected virtual void AdvanceGameStep()
+        {
             if (_currentTurn == null || !_currentTurnActionEnumerator.MoveNext())
             {
                 _currentTurn = Game.GetNextTurn();
@@ -137,18 +171,49 @@ namespace WpfApplication1
                 Title = turnText;
                 Log.WriteLine($"== {turnText} ==");
             }
+            Log.WriteLine(_currentTurnActionEnumerator.Current.ToString(Game));
             _currentTurnActionEnumerator.Current.Execute(Game);
-            Log.WriteLine(_currentTurnActionEnumerator.Current.ToString());
             DrawCastleStacks();
-            if (Game.Win != null)
+            ShowGameWin();
+        }
+
+        private async void RunButton_Click(object sender, RoutedEventArgs e)
+        {
+            while (Game.Win == null)
             {
-                string text = Game.Win.WinningPlayer.ToString() + " WIN";
-                Title = text;
-                Log.WriteLine(text);
-                NextButton.IsEnabled = false;
+                AdvanceGameStep();
+                await Task.Delay(RunSpeed);
             }
         }
 
+        private void Reset_Click(object sender, RoutedEventArgs e)
+        {
+            InitializeGame();
+        }
+
+        private void RunSpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            RunSpeed = GetRunSpeed((int)e.NewValue);
+        }
+
+        private int GetRunSpeed(int newValue)
+        {
+            switch (newValue)
+            {
+                case 0: return 0;
+                case 1: return 50;
+                case 2: return 250;
+                case 3: return 500;
+                case 4: return 1000;
+                case 5: return 2000;
+                case 6: return 3000;
+                case 7: return 5000;
+                case 8: return 10000;
+                case 9: return 15000;
+                case 10: return 30000;
+                default: throw new NotImplementedException();
+            }
+        }
     }
 
     public class Log

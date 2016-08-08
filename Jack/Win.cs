@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Jack
 {
-    public class Win
+    public abstract class Win
     {
         public Win(Player p)
         {
