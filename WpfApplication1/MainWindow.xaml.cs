@@ -268,10 +268,10 @@ namespace WpfApplication1
             {
                 Dictionary<WinType, int> winCounts = new Dictionary<WinType, int>()
                 {
-                        {WinType.JackWin,0 },
-                        {WinType.GiantHorizontal,0 },
-                        {WinType.GiantVertical,0 },
-                        {WinType.GiantDiscard,0 }
+                        { WinType.JackWin, 0 },
+                        { WinType.GiantHorizontal, 0 },
+                        { WinType.GiantVertical, 0 },
+                        { WinType.GiantDiscard, 0 }
                 };
                 for (int i = 0; i < SimulationCount; i++)
                 {
