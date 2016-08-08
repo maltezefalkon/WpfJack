@@ -286,6 +286,8 @@ namespace WpfApplication1
 
                     }
                     winCounts[Game.Win.WinType]++;
+                    Dispatcher.Invoke(() => Log.WriteLine($"{i + 1,-8}{Game.Win}"));
+
                 }
                 return winCounts;
             });
