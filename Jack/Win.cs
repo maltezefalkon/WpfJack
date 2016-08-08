@@ -18,5 +18,10 @@ namespace Jack
             get;
             protected set;
         }
+
+        public abstract WinType WinType
+        {
+            get;
+        }
     }
 }

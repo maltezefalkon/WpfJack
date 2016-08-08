@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Jack
 {
-    public class GiantWin : Win
+    public abstract class GiantWin : Win
     {
         public GiantWin(GiantPlayer player)
             : base(player)
@@ -27,6 +27,14 @@ namespace Jack
         {
             return "Giant WINS Horizontally";
         }
+
+        public override WinType WinType
+        {
+            get
+            {
+                return WinType.GiantHorizontal;
+            }
+        }
     }
 
     public class GiantVerticalWin : GiantWin
@@ -41,6 +49,14 @@ namespace Jack
         {
             return "Giant WINS Vertically";
         }
+
+        public override WinType WinType
+        {
+            get
+            {
+                return WinType.GiantVertical;
+            }
+        }
     }
 
     public class GiantWinByDiscard : GiantWin
@@ -49,6 +65,14 @@ namespace Jack
             : base(player)
         {
 
+        }
+
+        public override WinType WinType
+        {
+            get
+            {
+                return WinType.GiantDiscard;
+            }
         }
 
         public override string ToString()

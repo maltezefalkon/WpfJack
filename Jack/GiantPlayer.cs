@@ -26,9 +26,19 @@ namespace Jack
 
     public class GiantPlayerTurn : PlayerTurn
     {
+        private static bool FlipFlop = false;
+
         public GiantPlayerTurn(GiantPlayer player)
             : base(player)
         { }
+
+        public new GiantPlayer ActingPlayer
+        {
+            get
+            {
+                return base.ActingPlayer as GiantPlayer;
+            }
+        }
 
         public override IEnumerable<IAction> GetActions(Game game)
         {
@@ -39,7 +49,34 @@ namespace Jack
             };
         }
 
-        private ICardPositionDescriptor<Card> GetCardPositionToDiscard(Game game)
+        protected virtual ICardPositionDescriptor<Card> GetCardPositionToDiscard(Game game)
+        {
+            int maxValue = game.CardsInPlay.OfType<BeanstalkCard>().Max(x => x.Value);
+            FlipFlop = !FlipFlop;
+            if (FlipFlop)
+            {
+                return game.GetPositionDescriptorForCard(game.CardsInPlay.OfType<BeanstalkCard>().First(x => x.Value == maxValue));
+            }
+            else
+            {
+                return game.GetPositionDescriptorForCard(game.CardsInPlay.OfType<BeanstalkCard>().Last(x => x.Value == maxValue));
+            }
+        }
+
+    }
+
+    /// <summary>
+    /// An attempt at a more purposely disruptive discarding
+    /// strategy that proved to be worse than the simple
+    /// discard-max strategy
+    /// </summary>
+    public class GiantPlayerTurn2 : GiantPlayerTurn
+    {
+        public GiantPlayerTurn2(GiantPlayer player)
+            : base(player)
+        { }
+
+        protected override ICardPositionDescriptor<Card> GetCardPositionToDiscard(Game game)
         {
             IEnumerable<ICardPositionDescriptor<Card>> potentialTargets = GetJackPotentialTargetCards(game);
             IEnumerable<BeanstalkCard> valuedCards = potentialTargets.Select(x => x.PeekCard(game)).OfType<BeanstalkCard>();

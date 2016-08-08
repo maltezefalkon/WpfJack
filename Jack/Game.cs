@@ -194,7 +194,7 @@ namespace Jack
             private set;
         }
 
-        public virtual int RequiredBeanstalkCards => 6;
+        public virtual int RequiredBeanstalkCards => 5;
 
         public CardStack<ValuedCard> ActiveBeanstalkStack => BeanstalkStacks.FirstOrDefault(x => x.Count < RequiredBeanstalkCards + 1);
 

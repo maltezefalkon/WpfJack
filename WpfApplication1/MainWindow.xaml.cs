@@ -54,16 +54,19 @@ namespace WpfApplication1
             InitializeGame();
         }
 
-        private void InitializeGame()
+        private void InitializeGame(bool draw = true)
         {
             _currentTurn = null;
             _currentTurnActionEnumerator = null;
             Game = new Game();
             Game.Init();
-            DrawCastleStacks();
-            Title = "New Game";
-            NextButton.IsEnabled = true;
-            RunButton.IsEnabled = true;
+            if (draw)
+            {
+                DrawCastleStacks();
+                Title = "New Game";
+                NextButton.IsEnabled = true;
+                RunButton.IsEnabled = true;
+            }
         }
 
         private void DrawCastleStacks()
@@ -157,17 +160,21 @@ namespace WpfApplication1
             }
         }
 
-        private void GameOver(Exception x = null)
+        private void GameOver(Exception x = null, bool draw = true)
         {
-            string text = Game.Win?.ToString() ?? x?.Message ?? "Unexpected Game Over";
-            Title = text;
-            Log.WriteLine(text);
-            NextButton.IsEnabled = false;
-            RunButton.IsEnabled = false;
+            if (draw)
+            {
+                string text = Game.Win?.ToString() ?? x?.Message ?? "Unexpected Game Over";
+                Title = text;
+                Log.WriteLine(text);
+                NextButton.IsEnabled = false;
+                RunButton.IsEnabled = false;
+            }
         }
 
-        protected virtual void AdvanceGameStep()
+        protected virtual bool AdvanceGameStep(bool draw = true)
         {
+            bool ret = true;
             try
             { 
                 if (_currentTurn == null || !_currentTurnActionEnumerator.MoveNext())
@@ -178,26 +185,37 @@ namespace WpfApplication1
                     {
                         throw new Exception("Empty actions for turn");
                     }
-                    string turnText = $"Turn {Game.TurnCounter}: {_currentTurn.ActingPlayer.ToString()}'s turn";
-                    Title = turnText;
-                    Log.WriteLine($"== {turnText} ==");
+                    if (draw)
+                    {
+                        string turnText = $"Turn {Game.TurnCounter}: {_currentTurn.ActingPlayer.ToString()}'s turn";
+                        Title = turnText;
+                        Log.WriteLine($"== {turnText} ==");
+                    }
                 }
-                Log.WriteLine(_currentTurnActionEnumerator.Current.ToString(Game));
+                if (draw)
+                {
+                    Log.WriteLine(_currentTurnActionEnumerator.Current.ToString(Game));
+                }
                 _currentTurnActionEnumerator.Current.Execute(Game);
+                if (draw)
+                {
+                    DrawCastleStacks();
+                    ShowGameWin();
+                }
+                ret = (Game.Win == null);
             }
             catch (Exception x)
             {
-                GameOver(x);
+                GameOver(x, draw);
+                ret = false;
             }
-            DrawCastleStacks();
-            ShowGameWin();
+            return ret;
         }
 
         private async void RunButton_Click(object sender, RoutedEventArgs e)
         {
-            while (Game.Win == null)
+            while (AdvanceGameStep())
             {
-                AdvanceGameStep();
                 await Task.Delay(RunSpeed);
             }
         }
@@ -229,6 +247,60 @@ namespace WpfApplication1
                 case 10: return 30000;
                 default: throw new NotImplementedException();
             }
+        }
+
+        private async void SimulateButton_Click(object sender, RoutedEventArgs e)
+        {
+            SimulationProgressBar.Maximum = SimulationCount;
+            SimulationProgressBar.Minimum = 0;
+            SimulationProgressBar.Value = 0;
+            SimulationProgressBar.Visibility = Visibility.Visible;
+            Dictionary<WinType, int> results = await RunSimulation();
+            string msg = String.Join(Environment.NewLine, results.Select(x => $"{x.Key} = {x.Value:#,##0} ({((decimal)x.Value / SimulationCount):p1})"));
+            SimulationProgressBar.Visibility = Visibility.Hidden;
+            MessageBox.Show(msg);
+            InitializeGame();
+        }
+
+        private Task<Dictionary<WinType, int>> RunSimulation()
+        {
+            return Task<Dictionary<WinType, int>>.Run(() =>
+            {
+                Dictionary<WinType, int> winCounts = new Dictionary<WinType, int>()
+                {
+                        {WinType.JackWin,0 },
+                        {WinType.GiantHorizontal,0 },
+                        {WinType.GiantVertical,0 },
+                        {WinType.GiantDiscard,0 }
+                };
+                for (int i = 0; i < SimulationCount; i++)
+                {
+                    if (i % (10 * (Math.Log10(SimulationCount) - 1)) == 0)
+                    {
+                        int currentValue = i;
+                        Dispatcher.BeginInvoke(new Action(() => SimulationProgressBar.Value = currentValue));
+                    }
+                    InitializeGame(false);
+                    while (AdvanceGameStep(false))
+                    {
+
+                    }
+                    winCounts[Game.Win.WinType]++;
+                }
+                return winCounts;
+            });
+        }
+
+        public int SimulationCount
+        {
+            get;
+            set;
+        }
+
+        private void SimulationCountSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            SimulationCount = (int)Math.Pow(10, e.NewValue);
+            SimulateButton.Content = $"Simulate {SimulationCount:#,##0}";
         }
     }
 

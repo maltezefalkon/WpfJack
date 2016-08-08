@@ -69,6 +69,7 @@
     <Compile Include="StackEndCardPositionDescriptor.cs" />
     <Compile Include="TreasureCardType.cs" />
     <Compile Include="Win.cs" />
+    <Compile Include="WinType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

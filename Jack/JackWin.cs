@@ -16,5 +16,13 @@ namespace Jack
         {
             return "Jack WINS by capturing 3 treasures";
         }
+
+        public override WinType WinType
+        {
+            get
+            {
+                return WinType.JackWin;
+            }
+        }
     }
 }
