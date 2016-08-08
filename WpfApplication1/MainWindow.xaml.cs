@@ -104,11 +104,15 @@ namespace WpfApplication1
                 x += (int)mgr.CardWidth + padding;
             }
             x = padding;
-            int yy = padding;
-            foreach (Card card in game.DiscardPile)
+            foreach (int value in game.DiscardPile.OfType<BeanstalkCard>().Select(b => b.Value).Distinct().OrderBy(b => b))
             {
-                DrawCard(card, mgr, x, yy, DiscardPileCanvas, 2);
-                yy += (int)(mgr.CardHeight / 4);
+                int y = padding;
+                foreach (Card card in game.DiscardPile.OfType<BeanstalkCard>().Where(b => b.Value == value))
+                {
+                    DrawCard(card, mgr, x, y, DiscardPileCanvas, 2);
+                    y += (int)(mgr.CardHeight / 4);
+                }
+                x += (int)mgr.CardWidth + padding;
             }
         }
 
@@ -149,30 +153,42 @@ namespace WpfApplication1
         {
             if (Game.Win != null)
             {
-                string text = Game.Win.ToString();
-                Title = text;
-                Log.WriteLine(text);
-                NextButton.IsEnabled = false;
-                RunButton.IsEnabled = false;
+                GameOver();
             }
+        }
+
+        private void GameOver(Exception x = null)
+        {
+            string text = Game.Win?.ToString() ?? x?.Message ?? "Unexpected Game Over";
+            Title = text;
+            Log.WriteLine(text);
+            NextButton.IsEnabled = false;
+            RunButton.IsEnabled = false;
         }
 
         protected virtual void AdvanceGameStep()
         {
-            if (_currentTurn == null || !_currentTurnActionEnumerator.MoveNext())
-            {
-                _currentTurn = Game.GetNextTurn();
-                _currentTurnActionEnumerator = _currentTurn.GetActions(Game).GetEnumerator();
-                if (!_currentTurnActionEnumerator.MoveNext())
+            try
+            { 
+                if (_currentTurn == null || !_currentTurnActionEnumerator.MoveNext())
                 {
-                    throw new Exception("Empty actions for turn");
+                    _currentTurn = Game.GetNextTurn();
+                    _currentTurnActionEnumerator = _currentTurn.GetActions(Game).GetEnumerator();
+                    if (!_currentTurnActionEnumerator.MoveNext())
+                    {
+                        throw new Exception("Empty actions for turn");
+                    }
+                    string turnText = $"Turn {Game.TurnCounter}: {_currentTurn.ActingPlayer.ToString()}'s turn";
+                    Title = turnText;
+                    Log.WriteLine($"== {turnText} ==");
                 }
-                string turnText = $"Turn {Game.TurnCounter}: {_currentTurn.ActingPlayer.ToString()}'s turn";
-                Title = turnText;
-                Log.WriteLine($"== {turnText} ==");
+                Log.WriteLine(_currentTurnActionEnumerator.Current.ToString(Game));
+                _currentTurnActionEnumerator.Current.Execute(Game);
             }
-            Log.WriteLine(_currentTurnActionEnumerator.Current.ToString(Game));
-            _currentTurnActionEnumerator.Current.Execute(Game);
+            catch (Exception x)
+            {
+                GameOver(x);
+            }
             DrawCastleStacks();
             ShowGameWin();
         }

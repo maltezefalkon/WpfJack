@@ -9,8 +9,9 @@
     <DockPanel>
         <ToolBar DockPanel.Dock="Top">
             <Button x:Name="NextButton" Click="NextButton_Click">Step &gt;</Button>
+            <Separator />
             <Button x:Name="RunButton" Click="RunButton_Click">Run &gt;&gt;</Button>
-            <Slider x:Name="RunSpeedSlider" Minimum="0" Maximum="10" Width="125" Value="3" ValueChanged="RunSpeedSlider_ValueChanged"></Slider>
+            <Slider x:Name="RunSpeedSlider" Minimum="0" Maximum="10" Width="125" Value="3" ValueChanged="RunSpeedSlider_ValueChanged" IsSnapToTickEnabled="True" TickFrequency="1"></Slider>
             <Separator />
             <Button x:Name="Reset" Click="Reset_Click">Reset</Button>
         </ToolBar>
@@ -24,13 +25,13 @@
                 <RowDefinition Height="3*" />
                 <RowDefinition Height="1*" />
             </Grid.RowDefinitions>
-            <Border Grid.Row="0" Grid.Column="0" BorderThickness="1" BorderBrush="Black">
+            <Border Grid.Row="0" Grid.Column="0" BorderThickness="1" BorderBrush="Black" Background="MintCream">
                 <Canvas x:Name="BeanstalkStackCanvas" />
             </Border>
-            <Border Grid.Row="0" Grid.Column="1" BorderThickness="1" BorderBrush="Black">
+            <Border Grid.Row="0" Grid.Column="1" BorderThickness="1" BorderBrush="Black" Background="LightGray">
                 <Canvas x:Name="DiscardPileCanvas" />
             </Border>
-            <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="6" BorderBrush="Gray">
+            <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="1" BorderBrush="Black" Background="MistyRose">
                 <Canvas x:Name="CastleStackCanvas" />
             </Border>
             <ListBox x:Name="LogListBox" DockPanel.Dock="Bottom" Grid.Row="3" Grid.ColumnSpan="2" />
