@@ -26,14 +26,16 @@ namespace Jack
             set;
         }
 
+        public string Description { get; set; }
+
         public Card PeekCard(Game game)
         {
             return Stack.GetStack(game).GetEnd(End, Offset);
         }
 
-        public Card PluckCard(Game game)
+        public Card PluckCard(Game game, int offset)
         {
-            return Stack.GetStack(game).Pop(End, Offset);
+            return Stack.GetStack(game).Pop(End, Offset + offset);
         }
 
         public bool IsValid(Game game)
@@ -58,7 +60,7 @@ namespace Jack
 
         public override string ToString()
         {
-            return $"{End}" + (Offset != 0 ? $"-{Offset}" : String.Empty) + $" of {Stack}" ;
+            return $"{End}" + (Offset != 0 ? $"-{Offset}" : String.Empty) + $" of {Stack}" + (Description != null ? $" <{Description}>" : null);
         }
     }
 }

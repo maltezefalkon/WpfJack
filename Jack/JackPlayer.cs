@@ -55,7 +55,8 @@ namespace Jack
                         DestinationCardPosition = new StackEndCardPositionDescriptor()
                         {
                             End = StackEnd.Front,
-                            Stack = new ActiveBeanstalkStackDescriptor()
+                            Stack = new ActiveBeanstalkStackDescriptor(),
+                            Description = "Jack Building"
                         }
                     }, 1m);
             }
@@ -67,6 +68,7 @@ namespace Jack
                     dest.End = StackEnd.Front;
                     dest.Offset = 0;
                     dest.Stack = targetBuildCard.Stack;
+                    dest.Description = "Back to front";
                 }
                 else
                 {
@@ -77,7 +79,8 @@ namespace Jack
                         {
                             End = StackEnd.Front,
                             Offset = 0,
-                            Stack = giant.Stack
+                            Stack = giant.Stack,
+                            Description = "Trying to cover a giant card"
                         };
                     }
                     else
@@ -92,7 +95,8 @@ namespace Jack
                         {
                             End = StackEnd.Front,
                             Offset = 0,
-                            Stack = new CastleStackDescriptor(destStack)
+                            Stack = new CastleStackDescriptor(destStack),
+                            Description = "Picked a random destination"
                         };
                     }
                 }
@@ -105,7 +109,8 @@ namespace Jack
                             {
                                 End = targetBuildCard.End,
                                 Offset = 0,
-                                Stack = targetBuildCard.Stack
+                                Stack = targetBuildCard.Stack,
+                                Description = $"Jack unburying {targetBuildCard}"
                             },
                             DestinationCardPosition = dest
                         }, 0.30m);
@@ -121,7 +126,7 @@ namespace Jack
         {
             if (game.ActiveBeanstalkStack.Count == game.RequiredBeanstalkCards)
             {
-                return game.CardsInPlay.OfType<TreasureCard>();
+                return game.CardsInPlay.OfType<TreasureCard>().Where(x => !game.ClaimedTreasureCards.Any(y => x.TreasureCardType == y.TreasureCardType));
             }
             else
             {

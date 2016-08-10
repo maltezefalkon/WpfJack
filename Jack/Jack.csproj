@@ -43,6 +43,7 @@
     <Compile Include="Card.cs" />
     <Compile Include="CardShiftAction.cs" />
     <Compile Include="CardStack.cs" />
+    <Compile Include="CardSubType.cs" />
     <Compile Include="CardType.cs" />
     <Compile Include="CastleStack.cs" />
     <Compile Include="CompoundAction.cs" />

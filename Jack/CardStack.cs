@@ -65,15 +65,27 @@ namespace Jack
 
         public int GetIndexForStackEnd(StackEnd end, int offset = 0)
         {
+            int ret = -1;
             switch (end)
             {
                 case StackEnd.Back:
-                    return BackIndex + offset;
+                    ret = BackIndex + offset;
+                    if (ret >= Count)
+                    {
+                        throw new IndexOutOfRangeException("Back index offset too large");
+                    }
+                    break;
                 case StackEnd.Front:
-                    return FrontIndex - offset;
+                    ret = FrontIndex - offset;
+                    if (ret < 0)
+                    {
+                        throw new IndexOutOfRangeException("Front index offset too large");
+                    }
+                    break;
                 default:
                     throw new Exception();
             }
+            return ret;
         }
 
         public T Pop(StackEnd end, int offset = 0)

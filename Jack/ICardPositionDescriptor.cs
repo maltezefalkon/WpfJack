@@ -8,9 +8,10 @@ namespace Jack
 {
     public interface ICardPositionDescriptor<out T> where T : Card
     {
+        string Description { get; set; }
         IStackDescriptor<T> Stack { get; }
         T PeekCard(Game game);
-        T PluckCard(Game game);
+        T PluckCard(Game game, int offset);
         void PutCard(Game game, Card card);
         bool IsValid(Game game);
         int GetCardIndex(Game game);

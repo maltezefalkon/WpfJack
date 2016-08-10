@@ -13,7 +13,8 @@ namespace Jack
             DestinationCardPosition = new StackEndCardPositionDescriptor()
             {
                 End = StackEnd.Front,
-                Stack = new DiscardPileStackDescriptor()
+                Stack = new DiscardPileStackDescriptor(),
+                Description = "Smashed card goes to discard pile"
             };
         }
 

@@ -204,7 +204,13 @@ namespace Jack
             private set;
         }
 
+        public IEnumerable<CardStack<ValuedCard>> CompletedBeanstalkStacks => BeanstalkStacks.Where(x => x.Count == RequiredBeanstalkCards + 1);
+
+        public IEnumerable<TreasureCard> ClaimedTreasureCards => CompletedBeanstalkStacks.Select(x => x.Last()).OfType<TreasureCard>();
+
         public IEnumerable<Card> CardsInPlay => CastleStacks.SelectMany(x => x);
+
+        public IEnumerable<GiantCard> ThreateningGiantCards => CastleStacks.Select(x => x.Last()).OfType<GiantCard>();
 
         public int FindCastleStackIndexForCard(Card card)
         {
@@ -218,22 +224,32 @@ namespace Jack
             return -1;
         }
 
-        public StackEndCardPositionDescriptor GetPositionDescriptorForCard(Card card)
+        public StackEndCardPositionDescriptor GetPositionDescriptorForCard(Card card, StackEnd? end = null, string description = null)
         {
             int stackIndex = FindCastleStackIndexForCard(card);
             int cardIndex = CastleStacks[stackIndex].IndexOf(card);
-            StackEnd end = StackEnd.Back;
             int offset = cardIndex;
-            if (cardIndex > (int)Math.Truncate(CastleStacks[stackIndex].Count / 2m))
+            if (!end.HasValue)
             {
-                end = StackEnd.Front;
+                if (cardIndex >= (int)Math.Truncate(CastleStacks[stackIndex].Count / 2m))
+                {
+                    end = StackEnd.Front;
+                }
+                else
+                {
+                    end = StackEnd.Back;
+                }
+            }
+            if (end.Value == StackEnd.Front)
+            {
                 offset = CastleStacks[stackIndex].Count - cardIndex - 1;
             }
             return new StackEndCardPositionDescriptor()
             {
-                End = end,
+                End = end.Value,
                 Stack = new CastleStackDescriptor(stackIndex),
-                Offset = offset
+                Offset = offset,
+                Description = description
             };
         }
 
@@ -281,5 +297,7 @@ namespace Jack
         {
             AllActions.Add(action);
         }
+
+        public IEnumerable<Card> CardsPlayed => DiscardPile.Concat(BeanstalkStacks.SelectMany(x => x));
     }
 }
