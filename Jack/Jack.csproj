@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GiantStrategy\BaseGiantStrategy.cs" />
     <Compile Include="Card.cs" />
     <Compile Include="CardShiftAction.cs" />
     <Compile Include="CardStack.cs" />
@@ -54,11 +55,15 @@
     <Compile Include="GiantSmashAction.cs" />
     <Compile Include="GiantSnatchAction.cs" />
     <Compile Include="GiantStompAction.cs" />
+    <Compile Include="GiantStrategy\DiscardStrategy.cs" />
+    <Compile Include="GiantStrategy\HorizontalStrategy.cs" />
+    <Compile Include="GiantStrategy\VerticalStrategy.cs" />
     <Compile Include="GiantWin.cs" />
     <Compile Include="IAction.cs" />
     <Compile Include="ICardPositionDescriptor.cs" />
     <Compile Include="ICardSetDescriptor.cs" />
     <Compile Include="ICardStack.cs" />
+    <Compile Include="IStrategy.cs" />
     <Compile Include="JackPlayer.cs" />
     <Compile Include="JackSneakAction.cs" />
     <Compile Include="JackWin.cs" />

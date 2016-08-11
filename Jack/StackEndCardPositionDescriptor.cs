@@ -62,5 +62,19 @@ namespace Jack
         {
             return $"{End}" + (Offset != 0 ? $"-{Offset}" : String.Empty) + $" of {Stack}" + (Description != null ? $" <{Description}>" : null);
         }
+
+        public IEnumerable<StackEndCardPositionDescriptor> GetPositionsInFront(Game game)
+        {
+            ICardStack<Card> stack = Stack.GetStack(game);
+            for (int i = GetCardIndex(game) + 1; i <= stack.FrontIndex; i++)
+            {
+                yield return new StackEndCardPositionDescriptor()
+                {
+                    Offset = i,
+                    End = StackEnd.Back,
+                    Description = $"Positon {i} in front of {this}"
+                };
+            }
+        }
     }
 }

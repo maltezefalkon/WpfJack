@@ -235,60 +235,28 @@ namespace Jack
 
         public override IEnumerable<IAction> GetActions(Game game)
         {
+
             yield return SelectAction(game, GetPossibleActions(game));
+        }
+
+        protected virtual IEnumerable<IStrategy> GetStrategies(Game game)
+        {
+            yield return new GiantStrategy.DiscardStrategy();
+            yield return new GiantStrategy.HorizontalStrategy();
         }
 
         public virtual IEnumerable<Tuple<IAction, decimal>> GetPossibleActions(Game game)
         {
-            StackEndCardPositionDescriptor unburyPos = ActingPlayer.GetGiantCardToUnbury(game);
-            if (unburyPos.Offset >= 4 && unburyPos.Stack.GetStack(game).Count > 4)
+            List<Tuple<IAction, decimal>> ret = new List<Tuple<IAction, decimal>>();
+            foreach (IStrategy strat in GetStrategies(game))
             {
-                yield return new Tuple<IAction, decimal>(new GiantStompAction()
+                decimal strength = strat.GetStrength(game);
+                foreach (Tuple<IAction, decimal> possibleAction in strat.GetPossibleActions(game))
                 {
-                    SourceCardPosition = new StackEndCardPositionDescriptor()
-                    {
-                        End = StackEnd.Front,
-                        Offset = 3,
-                        Stack = unburyPos.Stack,
-                        Description = $"(Source) Giant unburying {unburyPos.PeekCard(game)} @ {unburyPos}"
-                    },
-                    DestinationCardPosition = new StackEndCardPositionDescriptor()
-                    {
-                        End = StackEnd.Front,
-                        Offset = 0,
-                        Stack = new CastleStackDescriptor(game.CastleStacks.Where(x => !Object.ReferenceEquals(unburyPos.Stack.GetStack(game), x) && x.FrontCard?.CardType != CardType.Giant).First().Index),
-                        Description = $"(Destination) Giant unburying {unburyPos.PeekCard(game)} @ {unburyPos} random destination w/o giant card"
-                    }
-                }, 1m);
-            }
-            else
-            {
-                ICardPositionDescriptor<Card> discardPositionHighest = ActingPlayer.GetCardToDiscardHighest(game);
-                discardPositionHighest.Description = "Discard highest";
-                if (discardPositionHighest != null)
-                {
-                    yield return new Tuple<IAction, decimal>(new GiantSmashAction()
-                    {
-                        SourceCardPosition = discardPositionHighest
-                    }, 0.4m);
-                }
-                ICardPositionDescriptor<Card> discardPositionDupes = ActingPlayer.GetCardToDiscardDupes(game);
-                if (discardPositionDupes != null)
-                {
-                    yield return new Tuple<IAction, decimal>(new GiantSmashAction()
-                    {
-                        SourceCardPosition = discardPositionDupes
-                    }, 0.4m);
-                }
-                ICardPositionDescriptor<Card> discardPositionDisrupt = ActingPlayer.GetCardToDiscardDisrupt(game);
-                if (discardPositionDisrupt != null)
-                {
-                    yield return new Tuple<IAction, decimal>(new GiantSmashAction()
-                    {
-                        SourceCardPosition = discardPositionDisrupt
-                    }, 0.2m);
+                    ret.Add(new Tuple<IAction, decimal>(possibleAction.Item1, possibleAction.Item2 * strength));
                 }
             }
+            return ret;
         }
     }
 }
