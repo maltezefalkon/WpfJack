@@ -34,11 +34,42 @@ namespace Jack
         public virtual void Execute(Game game)
         {
             game.BeginAction(this);
+            ExecuteCore(game);
+            game.CompleteAction(this);
+            IsExecuted = true;
+            game.CheckWinConditions();
+        }
+
+        public virtual Win Test(Game game)
+        {
+            ExecuteCore(game);
+            Win ret = game.GetWinCondition();
+            Undo(game);
+            return ret;
+        }
+
+        public virtual void ExecuteCore(Game game)
+        {
             for (int i = 0; i < NumberOfCardsAffected; i++)
             {
-                Card movedCard = SourceCardPosition.PluckCard(game, NumberOfCardsAffected);
+                Card movedCard = SourceCardPosition.PluckCard(game, -i);
                 DestinationCardPosition.PutCard(game, movedCard);
             }
+        }
+
+        public virtual void UndoCore(Game game)
+        {
+            for (int i = NumberOfCardsAffected - 1; i >= 0; i--)
+            {
+                Card movedCard = DestinationCardPosition.PluckCard(game, -i);
+                SourceCardPosition.PutCard(game, movedCard);
+            }
+        }
+
+        public virtual void Undo(Game game)
+        {
+            game.BeginAction(this);
+            ExecuteCore(game);
             game.CompleteAction(this);
             IsExecuted = true;
             game.CheckWinConditions();

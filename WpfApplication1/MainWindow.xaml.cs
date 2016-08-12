@@ -54,12 +54,29 @@ namespace WpfApplication1
             InitializeGame();
         }
 
+        private Dictionary<IStrategy, EventHandler<LogEventArgs>> _logEventHandlers = new Dictionary<IStrategy, EventHandler<LogEventArgs>>();
+
         private void InitializeGame(bool draw = true)
         {
+            if (null != Game)
+            {
+                foreach (KeyValuePair<IStrategy, EventHandler<LogEventArgs>> pair in _logEventHandlers)
+                {
+                    pair.Key.Log -= pair.Value;
+                }
+                _logEventHandlers.Clear();
+                Game = null;
+            }
             _currentTurn = null;
             _currentTurnActionEnumerator = null;
             Game = new Game();
             Game.Init();
+            foreach (IStrategy s in Game.Giant.GetStrategies(Game))
+            {
+                EventHandler<LogEventArgs> handler = (sender, args) => { Log.WriteLine($"{sender}: {args.Message}"); };
+                s.Log += handler;
+                _logEventHandlers.Add(s, handler);
+            }
             if (draw)
             {
                 DrawCastleStacks();

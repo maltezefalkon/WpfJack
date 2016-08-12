@@ -115,10 +115,36 @@ namespace Jack
             this[y] = c;
         }
 
-        public IEnumerable<T> GetEnds()
+        public IEnumerable<T> GetEnds(int count = 1)
         {
-            yield return FrontCard;
-            yield return BackCard;
+            if (count <= 0)
+            {
+                yield break;
+            }
+            else if (Count == 1)
+            {
+                yield return FrontCard;
+            }
+            else if (Count == 2)
+            {
+                yield return FrontCard;
+                yield return BackCard;
+            }
+            else if (count * 2 >= Count)
+            {
+                foreach (T card in this)
+                {
+                    yield return card;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    yield return this[i];
+                    yield return this[FrontIndex - i];
+                }
+            }
         }
 
         public void Insert(int index, Card card)

@@ -6,15 +6,7 @@ using System.Threading.Tasks;
 
 namespace Jack
 {
-    public class GiantSnatchAction : CompoundAction
-    {
-        public GiantSnatchAction()
-            : base(new GiantShiftAction(), new GiantShiftAction())
-        {
-        }
-    }
-
-    public class GiantShiftAction : CardShiftAction
+    public class GiantSnatchAction : CardShiftAction
     {
         public override int NumberOfCardsAffected => 1;
     }

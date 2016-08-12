@@ -11,14 +11,22 @@ namespace Jack.GiantStrategy
         public override IEnumerable<Tuple<IAction, decimal>> GetPossibleActions(Game game)
         {
             IEnumerable<Card> cardsToConsider = game.CardsInPlay;
-            yield return new Tuple<IAction, decimal>(new GiantSmashAction()
+            StackEndCardPositionDescriptor dupesPosition = SelectDiscardDupes(game, cardsToConsider);
+            if (null != dupesPosition)
             {
-                SourceCardPosition = SelectDiscardDupes(game, cardsToConsider)
-            }, 0.6m);
-            yield return new Tuple<IAction, decimal>(new GiantSmashAction()
+                yield return new Tuple<IAction, decimal>(new GiantSmashAction()
+                {
+                    SourceCardPosition = dupesPosition
+                }, 0.5m);
+            }
+            StackEndCardPositionDescriptor highestPosition = SelectDiscardHighest(game, cardsToConsider);
+            if (null != highestPosition)
             {
-                SourceCardPosition = SelectDiscardHighest(game, cardsToConsider)
-            }, 0.4m);
+                yield return new Tuple<IAction, decimal>(new GiantSmashAction()
+                {
+                    SourceCardPosition = highestPosition
+                }, 0.5m);
+            }
         }
 
         public override decimal GetStrength(Game game)

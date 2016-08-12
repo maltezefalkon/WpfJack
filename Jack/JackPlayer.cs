@@ -17,6 +17,11 @@ namespace Jack
         {
             return "Jack";
         }
+
+        public override IEnumerable<IStrategy> GetStrategies(Game game)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class JackPlayerTurn : PlayerTurn
@@ -126,7 +131,7 @@ namespace Jack
         {
             if (game.ActiveBeanstalkStack.Count == game.RequiredBeanstalkCards)
             {
-                return game.CardsInPlay.OfType<TreasureCard>().Where(x => !game.ClaimedTreasureCards.Any(y => x.TreasureCardType == y.TreasureCardType));
+                return game.CardsInPlay.OfType<TreasureCard>().Where(x => !game.ClaimedTreasureCards.Any(y => y.TreasureCardType == x.TreasureCardType));
             }
             else
             {

@@ -11,10 +11,10 @@ namespace Jack
         string Description { get; set; }
         IStackDescriptor<T> Stack { get; }
         T PeekCard(Game game);
-        T PluckCard(Game game, int offset);
+        T PluckCard(Game game, int offset = 0);
         void PutCard(Game game, Card card);
         bool IsValid(Game game);
         int GetCardIndex(Game game);
-        int? GetCastleStackIndex(Game game, Card card);
+        int? GetCastleStackIndex(Game game);
     }
 }

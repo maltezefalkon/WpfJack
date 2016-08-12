@@ -8,6 +8,7 @@ namespace Jack
 {
     public interface IStrategy
     {
+        event EventHandler<LogEventArgs> Log;
         decimal GetStrength(Game game);
         IEnumerable<Tuple<IAction, decimal>> GetPossibleActions(Game game);
     }

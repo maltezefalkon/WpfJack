@@ -14,7 +14,7 @@ namespace Jack
 
         T this[int index] { get; }
         T GetEnd(StackEnd end, int offset);
-        IEnumerable<T> GetEnds();
+        IEnumerable<T> GetEnds(int count = 1);
         int GetIndexForStackEnd(StackEnd end, int offset = 0);
         T Pop(StackEnd end, int offset = 0);
         void Push(Card card, StackEnd end, int offset = 0);

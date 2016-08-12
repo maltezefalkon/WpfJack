@@ -33,7 +33,7 @@ namespace Jack
             return Stack.GetStack(game).GetEnd(End, Offset);
         }
 
-        public Card PluckCard(Game game, int offset)
+        public Card PluckCard(Game game, int offset = 0)
         {
             return Stack.GetStack(game).Pop(End, Offset + offset);
         }
@@ -53,7 +53,7 @@ namespace Jack
             return Stack.GetStack(game).GetIndexForStackEnd(End, Offset);
         }
 
-        public int? GetCastleStackIndex(Game game, Card card)
+        public int? GetCastleStackIndex(Game game)
         {
             return (Stack.GetStack(game) as CastleStack)?.Index;
         }
@@ -66,14 +66,20 @@ namespace Jack
         public IEnumerable<StackEndCardPositionDescriptor> GetPositionsInFront(Game game)
         {
             ICardStack<Card> stack = Stack.GetStack(game);
-            for (int i = GetCardIndex(game) + 1; i <= stack.FrontIndex; i++)
+            int term = End == StackEnd.Front ? 0 : stack.Count - 1;
+            int sgn = Math.Sign(term - Offset);
+            if (sgn != 0)
             {
-                yield return new StackEndCardPositionDescriptor()
+                for (int i = Offset + sgn; i >= 0 && i <= stack.Count - 1; i += sgn)
                 {
-                    Offset = i,
-                    End = StackEnd.Back,
-                    Description = $"Positon {i} in front of {this}"
-                };
+                    yield return new StackEndCardPositionDescriptor()
+                    {
+                        Stack = Stack,
+                        Offset = i,
+                        End = End,
+                        Description = $"Positon {i} in front of {this}"
+                    };
+                }
             }
         }
     }

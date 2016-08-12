@@ -47,7 +47,6 @@
     <Compile Include="CardSubType.cs" />
     <Compile Include="CardType.cs" />
     <Compile Include="CastleStack.cs" />
-    <Compile Include="CompoundAction.cs" />
     <Compile Include="Deck.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="GiantCardType.cs" />
@@ -67,6 +66,7 @@
     <Compile Include="JackPlayer.cs" />
     <Compile Include="JackSneakAction.cs" />
     <Compile Include="JackWin.cs" />
+    <Compile Include="LogEventArgs.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="PlayerTurn.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

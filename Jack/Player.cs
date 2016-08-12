@@ -9,6 +9,8 @@ namespace Jack
     public abstract class Player
     {
         public abstract PlayerTurn GetNextTurn(Game game);
+
+        public abstract IEnumerable<IStrategy> GetStrategies(Game game);
     }
 
 }

@@ -61,7 +61,7 @@ namespace Jack
                     CastleStacks[i].Add(Deck.Pop(StackEnd.Front));
                 }
             }
-            DiscardPile = new CardStack<Card>("Discard Pile");
+            DiscardPile = new CardStack<BeanstalkCard>("Discard Pile");
             BeanstalkStacks = new CardStack<ValuedCard>[3];
             for (int i = 0; i < BeanstalkStacks.Length; i++)
             {
@@ -86,25 +86,27 @@ namespace Jack
 
         public virtual Win CheckWinConditions()
         {
+            Win = GetWinCondition();
+            return Win;
+        }
+
+        public virtual Win GetWinCondition()
+        { 
             if (ActiveBeanstalkStack == null && TurnCounter > 1)
             {
-                Win = new JackWin(Jack);
-                return Win;
+                return new JackWin(Jack);
             }
             else if (CheckGiantHorizontalWinCondition())
             {
-                Win = new GiantHorizontalWin(Giant);
-                return Win;
+                return new GiantHorizontalWin(Giant);
             }
             else if (CheckGiantVerticalWinCondition())
             {
-                Win = new GiantVerticalWin(Giant);
-                return Win;
+                return new GiantVerticalWin(Giant);
             }
             else if (CheckGiantDiscardWinCondition())
             {
-                Win = new GiantWinByDiscard(Giant);
-                return Win;
+                return new GiantWinByDiscard(Giant);
             }
             else
             {
@@ -117,7 +119,7 @@ namespace Jack
             ActiveBeanstalkStackStats stats = GetActiveBeanstalkMinMax();
             if (null != stats)
             {
-                if (stats.RemainingSkips < 0 && ActiveBeanstalkStack.Count < RequiredBeanstalkCards)
+                if (ActiveBeanstalkStack.Count < RequiredBeanstalkCards && (stats.RemainingSkips < 0 || CardsInPlay.OfType<BeanstalkCard>().Where(x => x.Value >= stats.Minimum).Select(x => x.Value).Distinct().Count() < RequiredBeanstalkCards - ActiveBeanstalkStack.Count))
                 {
                     return true;
                 }
@@ -131,13 +133,13 @@ namespace Jack
             return FeeFieFoeFum(frontGiantCards);
         }
 
-        private bool FeeFieFoeFum(IEnumerable<GiantCard> cards)
+        public bool FeeFieFoeFum(IEnumerable<Card> cards)
         {
             foreach (GiantCardType gct in Enum.GetValues(typeof(GiantCardType)))
             {
                 if (gct != GiantCardType.Unknown)
                 {
-                    if (!cards.Any(x => x.GiantCardType == gct))
+                    if (!cards.OfType<GiantCard>().Any(x => x.GiantCardType == gct))
                     {
                         return false;
                     }
@@ -188,7 +190,7 @@ namespace Jack
             private set;
         }
 
-        public CardStack<Card> DiscardPile
+        public CardStack<BeanstalkCard> DiscardPile
         {
             get;
             private set;

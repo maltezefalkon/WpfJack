@@ -8,6 +8,8 @@ namespace Jack.GiantStrategy
 {
     public abstract class BaseGiantStrategy : IStrategy
     {
+        public event EventHandler<LogEventArgs> Log;
+
         public abstract decimal GetStrength(Game game);
 
         public abstract IEnumerable<Tuple<IAction, decimal>> GetPossibleActions(Game game);
@@ -53,7 +55,7 @@ namespace Jack.GiantStrategy
 
         public virtual IEnumerable<Tuple<IAction, decimal>> GetUnburyActionTuples(Game game, StackEndCardPositionDescriptor position)
         {
-            if (position.Offset >= 4 && position.Stack.GetStack(game).Count > 4)
+            if (position.Stack.GetStack(game).Count - position.GetCardIndex(game) >= 4 && position.Stack.GetStack(game).Count >= 4)
             {
                 yield return new Tuple<IAction, decimal>(new GiantStompAction()
                 {
@@ -76,28 +78,65 @@ namespace Jack.GiantStrategy
             else
             {
                 IEnumerable<Card> cardsInFront = position.GetPositionsInFront(game).Select(x => x.PeekCard(game));
-                yield return new Tuple<IAction, decimal>(new GiantSmashAction()
+                StackEndCardPositionDescriptor descDupes = SelectDiscardDupes(game, cardsInFront);
+                if (null != descDupes)
                 {
-                    SourceCardPosition = SelectDiscardDupes(game, cardsInFront)
-                }, 0.6m);
-                yield return new Tuple<IAction, decimal>(new GiantSmashAction()
+                    yield return new Tuple<IAction, decimal>(new GiantSmashAction()
+                    {
+                        SourceCardPosition = descDupes
+                    }, 0.6m);
+                }
+                StackEndCardPositionDescriptor descHighest = SelectDiscardHighest(game, cardsInFront);
+                if (null != descHighest)
                 {
-                    SourceCardPosition = SelectDiscardHighest(game, cardsInFront)
-                }, 0.4m);
+                    yield return new Tuple<IAction, decimal>(new GiantSmashAction()
+                    {
+                        SourceCardPosition = descHighest
+                    }, 0.4m);
+                }
             }
         }
 
         public StackEndCardPositionDescriptor SelectDiscardHighest(Game game, IEnumerable<Card> cards)
         {
-            int maxValue = cards.OfType<BeanstalkCard>().Max(x => x.Value);
-            return game.GetPositionDescriptorForCard(game.CardsInPlay.OfType<BeanstalkCard>().First(x => x.Value == maxValue), StackEnd.Front, $"Card to discard highest First");
+            if (cards.OfType<BeanstalkCard>().Any())
+            {
+                int maxValue = cards.OfType<BeanstalkCard>().Max(x => x.Value);
+                return game.GetPositionDescriptorForCard(game.CardsInPlay.OfType<BeanstalkCard>().First(x => x.Value == maxValue), StackEnd.Front, $"Card to discard highest First");
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public StackEndCardPositionDescriptor SelectDiscardDupes(Game game, IEnumerable<Card> cards)
         {
-            var counts = game.CardsPlayed.GroupBy(x => x.Value).Select(x => new { Value = x.Key, Count = x.Count() });
-            var pool = counts.Where(x => x.Count > 0 && x.Count < 4).OrderByDescending(x => x.Value * x.Count * x.Count);
-            return game.GetPositionDescriptorForCard(cards.First(x => x.Value == pool.First().Value), StackEnd.Front, "Card to discard dupes");
+            var counts = game.CardsPlayed.OfType<BeanstalkCard>().GroupBy(x => x.Value).Select(x => new { Value = x.Key, Count = x.Count() });
+            var pool = counts.Where(x => x.Count >= 2).OrderByDescending(x => x.Value * x.Count * x.Count);
+            foreach (var p in pool)
+            {
+                Card c = cards.FirstOrDefault(x => x.Value == p.Value);
+                if (null != c)
+                {
+                    return game.GetPositionDescriptorForCard(c, StackEnd.Front, "Card to discard (dupes)");
+                }
+            }
+            return null;
+        }
+
+        public IEnumerable<ICardPositionDescriptor<Card>> GetJackPotentialTargetCards(Game game)
+        {
+            return game.CastleStacks.Where(x => x.Any()).SelectMany(x => x.GetEnds()).Select(x => game.GetPositionDescriptorForCard(x, null, "Potential Jack Target"));
+        }
+
+        protected virtual void OnLog(LogEventArgs args)
+        {
+            EventHandler<LogEventArgs> handler = Log;
+            if (null != handler)
+            {
+                handler(this, args);
+            }
         }
     }
 }
