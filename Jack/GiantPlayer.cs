@@ -26,8 +26,8 @@ namespace Jack
 
         public override IEnumerable<IStrategy> GetStrategies(Game game)
         {
-            //yield return new GiantStrategy.DiscardStrategy();
-            yield return new GiantStrategy.HorizontalStrategy();
+            yield return new GiantStrategy.DiscardStrategy();
+            //yield return new GiantStrategy.HorizontalStrategy();
         }
 
         public int GetTurnsToAchieveHorizontalVictory(Game game)

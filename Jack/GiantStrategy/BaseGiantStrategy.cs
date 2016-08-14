@@ -97,12 +97,26 @@ namespace Jack.GiantStrategy
             }
         }
 
+        public StackEndCardPositionDescriptor SelectDiscardDisrupt(Game game)
+        {
+            IEnumerable<Card> cards = GetJackPotentialTargetCards(game);
+            var counts = cards.OfType<BeanstalkCard>().GroupBy(x => x.Value).Select(x => new { Value = x.Key, Count = x.Count() }).OrderBy(x => x.Count).ThenByDescending(x => x.Value);
+            if (counts.Any(x => x.Count == 1))
+            {
+                return game.GetPositionDescriptorForCard(cards.Single(x => x.Value == counts.First().Value));
+            }
+            else
+            {
+                return SelectDiscardHighest(game, game.CardsInPlay);
+            }
+        }
+
         public StackEndCardPositionDescriptor SelectDiscardHighest(Game game, IEnumerable<Card> cards)
         {
             if (cards.OfType<BeanstalkCard>().Any())
             {
                 int maxValue = cards.OfType<BeanstalkCard>().Max(x => x.Value);
-                return game.GetPositionDescriptorForCard(game.CardsInPlay.OfType<BeanstalkCard>().First(x => x.Value == maxValue), StackEnd.Front, $"Card to discard highest First");
+                return game.GetPositionDescriptorForCard(cards.OfType<BeanstalkCard>().First(x => x.Value == maxValue), StackEnd.Front, $"Card to discard highest First");
             }
             else
             {
@@ -112,8 +126,8 @@ namespace Jack.GiantStrategy
 
         public StackEndCardPositionDescriptor SelectDiscardDupes(Game game, IEnumerable<Card> cards)
         {
-            var counts = game.CardsPlayed.OfType<BeanstalkCard>().GroupBy(x => x.Value).Select(x => new { Value = x.Key, Count = x.Count() });
-            var pool = counts.Where(x => x.Count >= 2).OrderByDescending(x => x.Value * x.Count * x.Count);
+            var counts = cards.OfType<BeanstalkCard>().GroupBy(x => x.Value).Select(x => new { Value = x.Key, Count = x.Count() });
+            var pool = counts.OrderByDescending(x => (x.Value * 2.5) + (x.Count * x.Count));
             foreach (var p in pool)
             {
                 Card c = cards.FirstOrDefault(x => x.Value == p.Value);
@@ -125,9 +139,13 @@ namespace Jack.GiantStrategy
             return null;
         }
 
-        public IEnumerable<ICardPositionDescriptor<Card>> GetJackPotentialTargetCards(Game game)
+        public IEnumerable<Card> GetJackPotentialTargetCards(Game game)
         {
-            return game.CastleStacks.Where(x => x.Any()).SelectMany(x => x.GetEnds()).Select(x => game.GetPositionDescriptorForCard(x, null, "Potential Jack Target"));
+            Game.ActiveBeanstalkStackStats stats = game.GetActiveBeanstalkMinMax();
+            return game.CastleStacks.Where(x => x.Any())
+                .SelectMany(x => x.GetEnds(3))
+                .OfType<BeanstalkCard>()
+                .Where(x => game.ActiveBeanstalkStack.Count == game.RequiredBeanstalkCards || x.Value >= stats.Minimum && x.Value <= stats.Maximum);
         }
 
         protected virtual void OnLog(LogEventArgs args)

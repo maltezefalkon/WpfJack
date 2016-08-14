@@ -18,6 +18,32 @@ namespace Jack
         {
             return $"{CardType} {Abbreviation}";
         }
+
+        public virtual string Code
+        {
+            get
+            {
+                if (CardType == CardType.Beanstalk)
+                {
+                    return Value.ToString();
+                }
+                else if (CardType == CardType.Giant)
+                {
+                    return SubType.ToString().Substring(1, 1);
+                }
+                else if (CardType == CardType.Treasure)
+                {
+                    switch (SubType)
+                    {
+                        case CardSubType.Gold: return "*";
+                        case CardSubType.Goose: return "&";
+                        case CardSubType.Harp: return "#";
+                        default: return "?";
+                    }
+                }
+                return "?";
+            }
+        }
     }
 
     public class BeanstalkCard : ValuedCard

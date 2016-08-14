@@ -10,23 +10,36 @@ namespace Jack.GiantStrategy
     {
         public override IEnumerable<Tuple<IAction, decimal>> GetPossibleActions(Game game)
         {
-            IEnumerable<Card> cardsToConsider = game.CardsInPlay;
-            StackEndCardPositionDescriptor dupesPosition = SelectDiscardDupes(game, cardsToConsider);
-            if (null != dupesPosition)
+            yield return new Tuple<IAction, decimal>(new GiantSmashAction()
             {
-                yield return new Tuple<IAction, decimal>(new GiantSmashAction()
-                {
-                    SourceCardPosition = dupesPosition
-                }, 0.5m);
-            }
-            StackEndCardPositionDescriptor highestPosition = SelectDiscardHighest(game, cardsToConsider);
-            if (null != highestPosition)
-            {
-                yield return new Tuple<IAction, decimal>(new GiantSmashAction()
-                {
-                    SourceCardPosition = highestPosition
-                }, 0.5m);
-            }
+                SourceCardPosition = SelectDiscardDisrupt(game)
+            }, 0.5m);
+            //foreach (IEnumerable<Card> cardsToConsider in GetCardSets(game))
+            //{
+            //    StackEndCardPositionDescriptor dupesPosition = SelectDiscardDupes(game, cardsToConsider);
+            //    if (null != dupesPosition)
+            //    {
+            //        yield return new Tuple<IAction, decimal>(new GiantSmashAction()
+            //        {
+            //            SourceCardPosition = dupesPosition
+            //        }, 0.5m);
+            //    }
+            //    //StackEndCardPositionDescriptor highestPosition = SelectDiscardHighest(game, cardsToConsider);
+            //    //if (null != highestPosition)
+            //    //{
+            //    //    yield return new Tuple<IAction, decimal>(new GiantSmashAction()
+            //    //    {
+            //    //        SourceCardPosition = highestPosition
+            //    //    }, 0.5m);
+            //    //    break;
+            //    //}
+            //}
+        }
+
+        private IEnumerable<IEnumerable<Card>> GetCardSets(Game game)
+        {
+            yield return GetJackPotentialTargetCards(game);
+            yield return game.CardsInPlay;
         }
 
         public override decimal GetStrength(Game game)

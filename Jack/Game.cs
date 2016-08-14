@@ -301,5 +301,59 @@ namespace Jack
         }
 
         public IEnumerable<Card> CardsPlayed => DiscardPile.Concat(BeanstalkStacks.SelectMany(x => x));
+
+        public string Render()
+        {
+            const string StackSpacer = "   ";
+            const string EmptyCardSlot = " ";
+            IEnumerable<ICardStack<Card>> stacks = GetStacksToRender();
+            int length = stacks.Max(x => x.Count);
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < length; j++)
+            {
+                for (int i = 0; i < CastleStacks.Length; i++)
+                {
+                    if (j < CastleStacks[i].Count)
+                    {
+                        sb.Append(CastleStacks[i][j].Code);
+                    }
+                    else
+                    {
+                        sb.Append(EmptyCardSlot);
+                    }
+                    sb.Append(StackSpacer);
+                }
+                sb.Append("|" + StackSpacer);
+                for(int i = 0; i < BeanstalkStacks.Length; i++)
+                {
+                    if (j < BeanstalkStacks[i].Count)
+                    {
+                        sb.Append(BeanstalkStacks[i][j].Code);
+                    }
+                    else
+                    {
+                        sb.Append(EmptyCardSlot);
+                    }
+                    if (i < BeanstalkStacks.Length - 1)
+                    {
+                        sb.Append(StackSpacer);
+                    }
+                    else
+                    {
+                        sb.Append(Environment.NewLine);
+                    }
+                }
+            }
+            return sb.ToString();
+        }
+
+        private IEnumerable<ICardStack<Card>> GetStacksToRender()
+        {
+            List<ICardStack<Card>> ret = new List<ICardStack<Card>>();
+            ret.AddRange(CastleStacks);
+            ret.AddRange(BeanstalkStacks);
+            ret.Add(DiscardPile);
+            return ret;
+        }
     }
 }

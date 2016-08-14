@@ -24,6 +24,10 @@ namespace Jack
         protected virtual IAction SelectAction(Game game, IEnumerable<Tuple<IAction, decimal>> possibleActions)
         {
             IEnumerable<Tuple<IAction, decimal>> possibilities = possibleActions.Where(x => x != null && x.Item2 > 0);
+            if (!possibilities.Any())
+            {
+                throw new Exception("No actions to select" + Environment.NewLine + game.Render());
+            }
             decimal total = possibilities.Sum(x => x.Item2);
             Random r = new Random();
             decimal choice = (decimal)r.NextDouble() * total;
