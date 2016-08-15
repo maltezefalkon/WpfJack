@@ -39,8 +39,18 @@ namespace Jack
             private set;
         }
 
-        public Game()
+        public string ID
         {
+            get;
+            private set;
+        }
+
+        public Game() : this(Guid.NewGuid().ToString())
+        { }
+
+        public Game(string id)
+        {
+            ID = id;
             Jack = new JackPlayer();
             Giant = new GiantPlayer();
             Deck = new Deck();
@@ -48,9 +58,83 @@ namespace Jack
             AllActions = new List<IAction>(100);
         }
 
+        public Game(string id, IEnumerable<IEnumerable<string>> castleStacks, IEnumerable<IEnumerable<string>> beanstalkStacks, IEnumerable<string> discardPile)
+            : this(id)
+        {
+            InitStacks();
+            if (null != castleStacks)
+            {
+                CastleStacks = ReadStacks<CastleStack>(i => new CastleStack(i), castleStacks).ToArray();
+            }
+            if (null != beanstalkStacks)
+            {
+                BeanstalkStacks = ReadStacks<CardStack<ValuedCard>>(i => new CardStack<ValuedCard>($"Beanstalk Stack {i}"), beanstalkStacks).ToArray();
+            }
+            if (null != discardPile)
+            {
+                DiscardPile = ReadStacks<CardStack<BeanstalkCard>>(i => new CardStack<BeanstalkCard>(), new[] { discardPile }).Single();
+            }
+            Deck.Clear();
+        }
+
+        private IEnumerable<TStack> ReadStacks<TStack>(Func<int, TStack> factory, IEnumerable<IEnumerable<string>> stackStringCollections) where TStack : ICardStack<Card>
+        {
+            int i = 0;
+            List<TStack> ret = new List<TStack>();
+            foreach (IEnumerable<string> stackCollection in stackStringCollections)
+            {
+                TStack stack = factory(i++);
+                foreach (string c in stackCollection)
+                {
+                    Card card = DeserializeCard(c);
+                    stack.Push(card, StackEnd.Front);
+                }
+                ret.Add(stack);
+            }
+            return ret;
+        }
+
+        private Card DeserializeCard(string c)
+        {
+            switch (c)
+            {
+                case "1": return new BeanstalkCard(1);
+                case "2": return new BeanstalkCard(2);
+                case "3": return new BeanstalkCard(3);
+                case "4": return new BeanstalkCard(4);
+                case "5": return new BeanstalkCard(5);
+                case "6": return new BeanstalkCard(6);
+                case "7": return new BeanstalkCard(7);
+                case "8": return new BeanstalkCard(8);
+                case "9": return new BeanstalkCard(9);
+                case "&": return new TreasureCard(TreasureCardType.Goose);
+                case "*": return new TreasureCard(TreasureCardType.Gold);
+                case "#": return new TreasureCard(TreasureCardType.Harp);
+                case "E":
+                case "e":
+                    return new GiantCard(GiantCardType.Fee);
+                case "I":
+                case "i":
+                    return new GiantCard(GiantCardType.Fie);
+                case "O":
+                case "o":
+                    return new GiantCard(GiantCardType.Fo);
+                case "U":
+                case "u":
+                    return new GiantCard(GiantCardType.Fum);
+                default: throw new Exception($"Unrecognized code: [{c}]");
+            }
+        }
+
         public void Init()
         {
             Deck.Shuffle();
+            InitStacks();
+            IsJacksTurn = true;
+        }
+
+        private void InitStacks()
+        {
             CastleStacks = new CastleStack[5];
             int initialCardsPerCastleStack = Deck.Count / CastleStacks.Length;
             for (int i = 0; i < CastleStacks.Length; i++)
@@ -67,7 +151,6 @@ namespace Jack
             {
                 BeanstalkStacks[i] = new CardStack<ValuedCard>($"Beanstalk Stack {i + 1}");
             }
-            IsJacksTurn = true;
         }
 
         public PlayerTurn GetNextTurn()
