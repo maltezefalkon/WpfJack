@@ -77,6 +77,14 @@ namespace Jack.GiantStrategy
             }
             else
             {
+                StackEndCardPositionDescriptor descDisrupt = SelectDiscardDisrupt(game);
+                if (null != descDisrupt)
+                {
+                    yield return new Tuple<IAction, decimal>(new GiantSmashAction()
+                    {
+                        SourceCardPosition = descDisrupt
+                    }, 0.8m);
+                }
                 IEnumerable<Card> cardsInFront = position.GetPositionsInFront(game).Select(x => x.PeekCard(game));
                 StackEndCardPositionDescriptor descDupes = SelectDiscardDupes(game, cardsInFront);
                 if (null != descDupes)

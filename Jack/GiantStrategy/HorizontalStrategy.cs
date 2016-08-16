@@ -58,6 +58,29 @@ namespace Jack.GiantStrategy
             }
         }
 
+        public decimal ScoreAction(Game game, params IAction[] actions)
+        {
+            decimal ret = 0m;
+            foreach (IAction action in actions)
+            {
+                action.ExecuteCore(game);
+            }
+            bool win = (null != game.GetWinCondition());
+            if (win)
+            {
+                ret = 100m;
+            }
+            else
+            {
+                ret = 1 - (GetFrontmostPositions(game).Average(x => (decimal)x.Value.Offset) * 0.2m);
+            }
+            foreach (IAction action in actions)
+            {
+                action.UndoCore(game);
+            }
+            return ret;
+        }
+
         private bool TestActionForWin(Game game, params IAction[] actions)
         {
             foreach (IAction action in actions)
