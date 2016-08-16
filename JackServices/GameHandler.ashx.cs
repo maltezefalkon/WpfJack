@@ -31,9 +31,9 @@ namespace JackServices
             {
                 TableName = "Jack",
                 Key = new Dictionary<string, AttributeValue>()
-            {
-                { "GameID", new AttributeValue() { S = gameIDFromClient } }
-            },
+                {
+                    { "GameID", new AttributeValue() { S = gameIDFromClient } }
+                },
                 ConsistentRead = true
             };
             GetItemResponse response = client.GetItem(req);

@@ -142,10 +142,15 @@ namespace Jack.GiantStrategy
         public IEnumerable<Card> GetJackPotentialTargetCards(Game game)
         {
             Game.ActiveBeanstalkStackStats stats = game.GetActiveBeanstalkMinMax();
+            if (game.ActiveBeanstalkStack.Count == game.RequiredBeanstalkCards)
+            {
+                stats.Minimum = 1;
+                stats.Maximum = 3;
+            }
             return game.CastleStacks.Where(x => x.Any())
-                .SelectMany(x => x.GetEnds(3))
+                .SelectMany(x => x.GetEnds(2))
                 .OfType<BeanstalkCard>()
-                .Where(x => game.ActiveBeanstalkStack.Count == game.RequiredBeanstalkCards || x.Value >= stats.Minimum && x.Value <= stats.Maximum);
+                .Where(x => x.Value >= stats.Minimum && x.Value <= stats.Maximum);
         }
 
         protected virtual void OnLog(LogEventArgs args)
