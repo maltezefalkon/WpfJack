@@ -24,7 +24,9 @@ namespace JackServices
         {
             Game ret = null;
             string gameIDFromClient = context.Request["GameID"];
-            AmazonDynamoDBClient client = new Amazon.DynamoDBv2.AmazonDynamoDBClient(@"AKIAIK6UBJOVWT7CO37Q", @"cUHeAra3wlx01n/C+Wqjt1ssMyiogbV+5xEzx8QY", Amazon.RegionEndpoint.USEast1);
+            string accessKeyId = Environment.GetEnvironmentVariable("AWS_ID");
+            string secretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET");
+            AmazonDynamoDBClient client = new Amazon.DynamoDBv2.AmazonDynamoDBClient(accessKeyId, secretAccessKey, Amazon.RegionEndpoint.USEast1);
             GetItemRequest req = new GetItemRequest()
             {
                 TableName = "Jack",
