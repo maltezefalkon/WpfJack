@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Game Display</title>
+	<meta charset="utf-8" />
+    <style>
+        #card-table {
+            background-color: darkgreen;
+            border: solid brown 4px;
+            width: 500px;
+            height: 400px;
+        }
+    </style>
+    <script src="js/cards.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+</head>
+<body>
+    <form>
+        <input type="text" name="GameID" />&nbsp;<input type="submit" value="Load" /><br />
+        <br />
+        <div id="card-table">
+
+        </div>
+    </form>
+    <script language="text/javascript">
+        var queryString = {};
+        location.search.substr(1).split("&").forEach(function (item) {
+            var s = item.split("="),
+                k = s[0],
+                v = s[1] && decodeURIComponent(s[1]);
+            (queryString[k] = queryString[k] || []).push(v) //short-circuit
+        });
+
+        cards.init({ table: '#card-table' });
+        $.get('http://localhost:55307/GameHandler.ashx?GameID=' + queryString["GameID"], null, InitializeGame);
+
+        function InitializeGame(data)
+        {
+            deck = new cards.Deck();
+            for (var stack in data.CastleStacks)
+            {
+                for (var card in stack)
+                {
+                    deck.addCard(card);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

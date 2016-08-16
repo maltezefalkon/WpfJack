@@ -49,7 +49,7 @@ namespace Jack
             {
                 throw new Exception("No buildable card found");
             }
-            var scores = buildableCards.Select(x => new { Descriptor = x, Score = 50 / (x.Offset + 1 + ((ValuedCard)x.PeekCard(game)).Value) - stats.Minimum });
+            var scores = buildableCards.Select(x => new { Descriptor = x, Score = 50 / (x.Offset + 1 + ((BuildableCard)x.PeekCard(game)).Value) - stats.Minimum });
             StackEndCardPositionDescriptor targetBuildCard = scores.First(x => x.Score == scores.Max(y => y.Score)).Descriptor;
             if (targetBuildCard.Offset == 0)
             {
@@ -127,7 +127,7 @@ namespace Jack
             //yield return shiftActionTuple;
         }
 
-        private IEnumerable<ValuedCard> GetBuildableCards(Game game)
+        private IEnumerable<BuildableCard> GetBuildableCards(Game game)
         {
             if (game.ActiveBeanstalkStack.Count == game.RequiredBeanstalkCards)
             {

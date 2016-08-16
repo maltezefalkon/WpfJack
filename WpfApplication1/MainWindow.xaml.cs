@@ -113,7 +113,7 @@ namespace WpfApplication1
                 x += (int)mgr.CardWidth + padding;
             }
             x = padding;
-            foreach (CardStack<ValuedCard> stack in Game.BeanstalkStacks)
+            foreach (CardStack<BuildableCard> stack in Game.BeanstalkStacks)
             {
                 int y = padding;
                 foreach (Card card in stack)
@@ -320,6 +320,11 @@ namespace WpfApplication1
         {
             SimulationCount = (int)Math.Pow(10, e.NewValue);
             SimulateButton.Content = $"Simulate {SimulationCount:#,##0}";
+        }
+
+        private void TestButton_Click(object sender, RoutedEventArgs e)
+        {
+            Log.WriteLine(Game.GetJson());
         }
     }
 

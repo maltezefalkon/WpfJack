@@ -68,7 +68,7 @@ namespace Jack
             }
             if (null != beanstalkStacks)
             {
-                BeanstalkStacks = ReadStacks<CardStack<ValuedCard>>(i => new CardStack<ValuedCard>($"Beanstalk Stack {i}"), beanstalkStacks).ToArray();
+                BeanstalkStacks = ReadStacks<CardStack<BuildableCard>>(i => new CardStack<BuildableCard>($"Beanstalk Stack {i}"), beanstalkStacks).ToArray();
             }
             if (null != discardPile)
             {
@@ -146,10 +146,10 @@ namespace Jack
                 }
             }
             DiscardPile = new CardStack<BeanstalkCard>("Discard Pile");
-            BeanstalkStacks = new CardStack<ValuedCard>[3];
+            BeanstalkStacks = new CardStack<BuildableCard>[3];
             for (int i = 0; i < BeanstalkStacks.Length; i++)
             {
-                BeanstalkStacks[i] = new CardStack<ValuedCard>($"Beanstalk Stack {i + 1}");
+                BeanstalkStacks[i] = new CardStack<BuildableCard>($"Beanstalk Stack {i + 1}");
             }
         }
 
@@ -281,15 +281,15 @@ namespace Jack
 
         public virtual int RequiredBeanstalkCards => 6;
 
-        public CardStack<ValuedCard> ActiveBeanstalkStack => BeanstalkStacks.FirstOrDefault(x => x.Count < RequiredBeanstalkCards + 1);
+        public CardStack<BuildableCard> ActiveBeanstalkStack => BeanstalkStacks.FirstOrDefault(x => x.Count < RequiredBeanstalkCards + 1);
 
-        public CardStack<ValuedCard>[] BeanstalkStacks
+        public CardStack<BuildableCard>[] BeanstalkStacks
         {
             get;
             private set;
         }
 
-        public IEnumerable<CardStack<ValuedCard>> CompletedBeanstalkStacks => BeanstalkStacks.Where(x => x.Count == RequiredBeanstalkCards + 1);
+        public IEnumerable<CardStack<BuildableCard>> CompletedBeanstalkStacks => BeanstalkStacks.Where(x => x.Count == RequiredBeanstalkCards + 1);
 
         public IEnumerable<TreasureCard> ClaimedTreasureCards => CompletedBeanstalkStacks.Select(x => x.Last()).OfType<TreasureCard>();
 
@@ -437,6 +437,52 @@ namespace Jack
             ret.AddRange(BeanstalkStacks);
             ret.Add(DiscardPile);
             return ret;
+        }
+
+        public string GetJson()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"{{ \"GameID\": \"{ID}\", ");
+            sb.Append($"\"CastleStacks\": {RenderJsonDictionary(CastleStacks, (x, i) => i.ToString(), (x, i) => x.Code)}, ");
+            sb.Append($"\"BeanstalkStacks\": {RenderJsonDictionary(BeanstalkStacks, (x, i) => ((CardStack<BuildableCard>)x).Name, (x, i) => x.Code)}, ");
+            sb.Append($"\"DiscardPile\": {RenderJsonArray(DiscardPile, (x, i) => x.Code)}");
+            sb.Append($" }}");
+            return sb.ToString();
+        }
+
+        private string RenderJsonDictionary<T>(IEnumerable<IEnumerable<T>> listOfLists, Func<IEnumerable<T>, int, object> keySelector, Func<T, int, object> itemSelector)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("{ ");
+            int i = 0;
+            foreach (IEnumerable<T> list in listOfLists)
+            {
+                sb.Append($"\"{keySelector(list, i++)}\": ");
+                sb.Append(RenderJsonArray(list, itemSelector));
+                if (!Object.ReferenceEquals(list, listOfLists.Last()))
+                {
+                    sb.Append(", ");
+                }
+            }
+            sb.Append(" }");
+            return sb.ToString();
+        }
+
+        private string RenderJsonArray<T>(IEnumerable<T> list, Func<T, int, object> itemSelector)
+        {
+            StringBuilder sb = new StringBuilder();
+            int j = 0;
+            sb.Append("[ ");
+            foreach (T item in list)
+            {
+                sb.Append($"\"{itemSelector(item, j++)}\"");
+                if (!Object.ReferenceEquals(item, list.Last()))
+                {
+                    sb.Append(", ");
+                }
+            }
+            sb.Append(" ]");
+            return sb.ToString();
         }
     }
 }

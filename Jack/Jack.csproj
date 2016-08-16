@@ -40,6 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BeanstalkCard.cs" />
+    <Compile Include="BuildableCard.cs" />
+    <Compile Include="GiantCard.cs" />
     <Compile Include="GiantStrategy\BaseGiantStrategy.cs" />
     <Compile Include="Card.cs" />
     <Compile Include="CardShiftAction.cs" />
@@ -73,6 +76,7 @@
     <Compile Include="StackDescriptor.cs" />
     <Compile Include="StackEnd.cs" />
     <Compile Include="StackEndCardPositionDescriptor.cs" />
+    <Compile Include="TreasureCard.cs" />
     <Compile Include="TreasureCardType.cs" />
     <Compile Include="Win.cs" />
     <Compile Include="WinType.cs" />

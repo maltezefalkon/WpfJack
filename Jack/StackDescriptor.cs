@@ -59,9 +59,9 @@ namespace Jack
         }
     }
 
-    public class ActiveBeanstalkStackDescriptor : IStackDescriptor<ValuedCard>
+    public class ActiveBeanstalkStackDescriptor : IStackDescriptor<BuildableCard>
     {
-        public ICardStack<ValuedCard> GetStack(Game game)
+        public ICardStack<BuildableCard> GetStack(Game game)
         {
             return game.ActiveBeanstalkStack;
         }
