@@ -145,6 +145,39 @@ namespace Jack.GiantStrategy
             IEnumerable<StackEndCardPositionDescriptor> giantCardPositons = game.CardsInPlay.OfType<GiantCard>().Select(x => game.GetPositionDescriptorForCard(x, StackEnd.Front));
             return giantCardPositons.GroupBy(x => ((GiantCard)x.PeekCard(game)).GiantCardType).Select(x => new { GiantCardType = x.Key, FrontmostPosition = x.OrderBy(y => y.Offset).First() }).ToDictionary(x => x.GiantCardType, y => y.FrontmostPosition);
         }
+
+        public decimal ScoreGiantCard(Game game, GiantCard card)
+        {
+            decimal ret = 0m;
+            decimal[] positionValues = new decimal[] { 20, 15, 5, 4, 10, 3 };
+            StackEndCardPositionDescriptor pos = game.GetPositionDescriptorForCard(card, StackEnd.Front, $"{card} position");
+            if (pos.Offset > positionValues.Length - 1)
+            {
+                int count = pos.Stack.GetStack(game).Count;
+                ret = 3m * (1m - ((decimal)pos.Offset / count));
+            }
+            else
+            {
+                ret = positionValues[pos.Offset];
+            }
+            return ret;
+        }
+
+        public decimal GetTotalGiantCardScore(Game game)
+        {
+            Dictionary<GiantCard, decimal> scores = game.CardsInPlay.OfType<GiantCard>().ToDictionary(x => x, x => ScoreGiantCard(game, x));
+            //var byType = scores
+            //    .GroupBy(x => x.Key.GiantCardType)
+            //    .ToDictionary(x => x.Key, x => x.ToList().OrderByDescending(y => y.Value));
+
+            //foreach (var t in byType)
+            //{
+            //    decimal higherValue = t.Value.First().Value;
+            //    scores[t.Value.First().Key] = higherValue * 2m;
+            //}
+
+            return scores.Sum(x => x.Value);
+        }
     }
 }
 

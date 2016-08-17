@@ -1,4 +1,5 @@
 ﻿using Jack;
+using Jack.GiantStrategy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -324,7 +325,13 @@ namespace WpfApplication1
 
         private void TestButton_Click(object sender, RoutedEventArgs e)
         {
-            Log.WriteLine(Game.GetJson());
+            //Log.WriteLine(Game.GetJson());
+            HorizontalStrategy hz = Game.Giant.GetStrategies(Game).OfType<Jack.GiantStrategy.HorizontalStrategy>().Single();
+            foreach (GiantCard g in Game.CardsInPlay.OfType<GiantCard>())
+            {
+                Log.WriteLine($"Giant Card Score for [{g}]: {hz.ScoreGiantCard(Game, g):#,##0.00}");
+            }
+            Log.WriteLine($"Total Giant Card Score: {hz.GetTotalGiantCardScore(Game):#,##0.00}");
         }
     }
 
