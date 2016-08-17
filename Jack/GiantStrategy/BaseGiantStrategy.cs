@@ -111,7 +111,7 @@ namespace Jack.GiantStrategy
             var counts = cards.OfType<BeanstalkCard>().GroupBy(x => x.Value).Select(x => new { Value = x.Key, Count = x.Count() }).OrderBy(x => x.Count).ThenByDescending(x => x.Value);
             if (counts.Any(x => x.Count == 1))
             {
-                return game.GetPositionDescriptorForCard(cards.Single(x => x.Value == counts.First().Value));
+                return game.GetPositionDescriptorForCard(cards.Single(x => x.Value == counts.First().Value), StackEnd.Front, "Discard/Disrupt");
             }
             else
             {
@@ -124,7 +124,7 @@ namespace Jack.GiantStrategy
             if (cards.OfType<BeanstalkCard>().Any())
             {
                 int maxValue = cards.OfType<BeanstalkCard>().Max(x => x.Value);
-                return game.GetPositionDescriptorForCard(cards.OfType<BeanstalkCard>().First(x => x.Value == maxValue), StackEnd.Front, $"Card to discard highest First");
+                return game.GetPositionDescriptorForCard(cards.OfType<BeanstalkCard>().First(x => x.Value == maxValue), StackEnd.Front, $"Discard/Highest");
             }
             else
             {
@@ -141,7 +141,7 @@ namespace Jack.GiantStrategy
                 Card c = cards.FirstOrDefault(x => x.Value == p.Value);
                 if (null != c)
                 {
-                    return game.GetPositionDescriptorForCard(c, StackEnd.Front, "Card to discard (dupes)");
+                    return game.GetPositionDescriptorForCard(c, StackEnd.Front, "Discard/dupes");
                 }
             }
             return null;

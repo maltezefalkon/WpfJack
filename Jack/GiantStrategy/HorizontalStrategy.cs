@@ -16,6 +16,12 @@ namespace Jack.GiantStrategy
 
         public override IEnumerable<Tuple<IAction, decimal>> GetPossibleActions(Game game)
         {
+            decimal currentScore = GetTotalGiantCardScore(game);
+            var actions = GeneratePossibleSnatchActions(game);
+            var tupleScores = CalculateTupleScores(game, actions);
+            IAction action = tupleScores[tupleScores.Max(x => x.Key)].Item1;
+            yield return new Tuple<IAction, decimal>(action, 1m);
+            /*
             IEnumerable<IAction> winActions = GetWinActions(game);
             if (winActions.Any())
             {
@@ -38,6 +44,7 @@ namespace Jack.GiantStrategy
             int max = frontmostPositions.Max(x => x.Value.GetCardIndex(game));
             StackEndCardPositionDescriptor targetPosition = frontmostPositions.First(x => x.Value.GetCardIndex(game) == max).Value;
             return GetUnburyActionTuples(game, targetPosition);
+            */
         }
 
         private IEnumerable<IAction> GetWinActions(Game game)
@@ -166,17 +173,36 @@ namespace Jack.GiantStrategy
         public decimal GetTotalGiantCardScore(Game game)
         {
             Dictionary<GiantCard, decimal> scores = game.CardsInPlay.OfType<GiantCard>().ToDictionary(x => x, x => ScoreGiantCard(game, x));
-            //var byType = scores
-            //    .GroupBy(x => x.Key.GiantCardType)
-            //    .ToDictionary(x => x.Key, x => x.ToList().OrderByDescending(y => y.Value));
+            var byType = scores
+                .GroupBy(x => x.Key.GiantCardType)
+                .ToDictionary(x => x.Key, x => x.ToList().OrderByDescending(y => y.Value));
 
-            //foreach (var t in byType)
-            //{
-            //    decimal higherValue = t.Value.First().Value;
-            //    scores[t.Value.First().Key] = higherValue * 2m;
-            //}
+            foreach (var t in byType)
+            {
+                decimal higherValue = t.Value.First().Value;
+                scores[t.Value.First().Key] = higherValue * 2m;
+            }
 
             return scores.Sum(x => x.Value);
+        }
+
+        public Dictionary<decimal, Tuple<IAction, IAction>> CalculateTupleScores(Game game, IEnumerable<Tuple<IAction, IAction>> tuples)
+        {
+            Tuple<IAction, IAction>[] tupleArray = tuples.ToArray();
+            Dictionary<decimal, Tuple<IAction, IAction>> ret = new Dictionary<decimal, Tuple<IAction, IAction>>();
+            for (int i = 0; i < tupleArray.Length; i++)
+            {
+                tupleArray[i].Item1.ExecuteCore(game);
+                tupleArray[i].Item2.ExecuteCore(game);
+                decimal score = GetTotalGiantCardScore(game);
+                if (!ret.ContainsKey(score))
+                {
+                    ret.Add(score, tupleArray[i]);
+                }
+                tupleArray[i].Item2.UndoCore(game);
+                tupleArray[i].Item1.UndoCore(game);
+            }
+            return ret;
         }
     }
 }
