@@ -61,7 +61,7 @@ namespace Jack
         {
             for (int i = NumberOfCardsAffected - 1; i >= 0; i--)
             {
-                Card movedCard = DestinationCardPosition.PluckCard(game, -i);
+                Card movedCard = DestinationCardPosition.PluckCard(game);
                 SourceCardPosition.PutCard(game, movedCard);
             }
         }

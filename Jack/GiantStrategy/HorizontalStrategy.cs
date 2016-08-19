@@ -17,9 +17,9 @@ namespace Jack.GiantStrategy
         public override IEnumerable<Tuple<IAction, decimal>> GetPossibleActions(Game game)
         {
             decimal currentScore = GetTotalGiantCardScore(game);
-            var actions = GeneratePossibleSnatchActions(game);
-            var tupleScores = CalculateTupleScores(game, actions);
-            IAction action = tupleScores[tupleScores.Max(x => x.Key)].Item1;
+            var actions = GeneratePossibleShifts(game).Concat(GeneratePossibleStompActions(game));
+            var actionScores = CalculateActionScores(game, actions);
+            IAction action = actionScores[actionScores.Max(x => x.Key)];
             yield return new Tuple<IAction, decimal>(action, 1m);
             /*
             IEnumerable<IAction> winActions = GetWinActions(game);
@@ -109,6 +109,34 @@ namespace Jack.GiantStrategy
                 foreach (IAction secondShift in GeneratePossibleShifts(game))
                 {
                     yield return new Tuple<IAction, IAction>(firstShift, secondShift);
+                }
+            }
+        }
+
+        private IEnumerable<IAction> GeneratePossibleStompActions(Game game)
+        {
+            foreach (CastleStack fromStack in game.CastleStacks.Where(x => x.Count >= 4))
+            {
+                foreach (CastleStack toStack in game.CastleStacks)
+                {
+                    if (!Object.ReferenceEquals(fromStack, toStack))
+                    {
+                        yield return new GiantStompAction()
+                        {
+                            SourceCardPosition = new StackEndCardPositionDescriptor()
+                            {
+                                End = StackEnd.Front,
+                                Offset = 3,
+                                Stack = new CastleStackDescriptor(fromStack.Index)
+                            },
+                            DestinationCardPosition = new StackEndCardPositionDescriptor()
+                            {
+                                End = StackEnd.Front,
+                                Offset = 0,
+                                Stack = new CastleStackDescriptor(toStack.Index)
+                            }
+                        };
+                    }
                 }
             }
         }
@@ -220,6 +248,33 @@ namespace Jack.GiantStrategy
                 }
                 tupleArray[i].Item2.UndoCore(game);
                 tupleArray[i].Item1.UndoCore(game);
+            }
+            return ret;
+        }
+
+        public Dictionary<decimal, IAction> CalculateActionScores(Game game, IEnumerable<IAction> actions)
+        {
+            Dictionary<decimal, IAction> ret = new Dictionary<decimal, IAction>();
+            foreach (IAction action in actions)
+            {
+                if (!action.IsValid(game))
+                {
+                    continue;
+                }
+                else
+                {
+                    action.ExecuteCore(game);
+                }
+                decimal score = GetTotalGiantCardScore(game);
+                if (null != game.GetWinCondition())
+                {
+                    score = 1000000m;
+                }
+                if (!ret.ContainsKey(score))
+                {
+                    ret.Add(score, action);
+                }
+                action.UndoCore(game);
             }
             return ret;
         }
