@@ -28,7 +28,7 @@ namespace Jack
                 &&
                 SourceCardPosition.Stack.GetStack(game).Count >= NumberOfCardsAffected
                 &&
-                SourceCardPosition.GetCardIndex(game) < SourceCardPosition.Stack.GetStack(game).Count - NumberOfCardsAffected;
+                SourceCardPosition.GetCardIndex(game) < SourceCardPosition.Stack.GetStack(game).Count - NumberOfCardsAffected + 1;
         }
 
         public virtual void Execute(Game game)

@@ -40,7 +40,7 @@ namespace Jack
 
         public bool IsValid(Game game)
         {
-            return Stack.IsValid(game) && Stack.GetStack(game).Count > 0;
+            return Stack.IsValid(game) && Stack.GetStack(game).Count > Offset;
         }
 
         public void PutCard(Game game, Card card)

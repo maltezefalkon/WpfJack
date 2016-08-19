@@ -26,7 +26,7 @@ namespace Jack
 
         public override IEnumerable<IStrategy> GetStrategies(Game game)
         {
-            yield return new GiantStrategy.DiscardStrategy();
+            //yield return new GiantStrategy.DiscardStrategy();
             yield return new GiantStrategy.HorizontalStrategy();
         }
 
@@ -136,8 +136,12 @@ namespace Jack
 
         public override IEnumerable<IAction> GetActions(Game game)
         {
-
-            yield return SelectAction(game, GetPossibleActions(game));
+            IAction action = SelectAction(game, GetPossibleActions(game));
+            yield return action;
+            if (action is GiantSnatchAction)
+            {
+                yield return SelectAction(game, GetPossibleActions(game));
+            }
         }
 
         protected virtual IEnumerable<IStrategy> GetStrategies(Game game)

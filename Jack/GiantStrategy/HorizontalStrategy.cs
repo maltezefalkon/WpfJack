@@ -192,9 +192,28 @@ namespace Jack.GiantStrategy
             Dictionary<decimal, Tuple<IAction, IAction>> ret = new Dictionary<decimal, Tuple<IAction, IAction>>();
             for (int i = 0; i < tupleArray.Length; i++)
             {
-                tupleArray[i].Item1.ExecuteCore(game);
-                tupleArray[i].Item2.ExecuteCore(game);
+                if (!tupleArray[i].Item1.IsValid(game))
+                {
+                    continue;
+                }
+                else
+                {
+                    tupleArray[i].Item1.ExecuteCore(game);
+                }
+                if (!tupleArray[i].Item2.IsValid(game))
+                {
+                    tupleArray[i].Item1.UndoCore(game);
+                    continue;
+                }
+                else
+                {
+                    tupleArray[i].Item2.ExecuteCore(game);
+                }
                 decimal score = GetTotalGiantCardScore(game);
+                if (null != game.GetWinCondition())
+                {
+                    score = 1000000m;
+                }
                 if (!ret.ContainsKey(score))
                 {
                     ret.Add(score, tupleArray[i]);
